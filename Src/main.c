@@ -46,7 +46,7 @@
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            8000
+#define APP_TX_DUTYCYCLE                            15000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
@@ -351,12 +351,20 @@ static void JoinNetwork( void )
  */
 static void PrepareTxFrame( uint8_t port )
 {
+	uint16_t distance=40;
+	uint16_t humidity=90;
+	int16_t temperature=28;
     switch( port )
     {
     case 2:
         {
-            AppDataSizeBackup = AppDataSize = 1;
-            AppDataBuffer[0] = AppLedStateOn;
+            AppDataSizeBackup = AppDataSize = 6;
+            AppDataBuffer[0] = distance>>8;
+            AppDataBuffer[1] = distance;
+            AppDataBuffer[2] = humidity>>8;
+            AppDataBuffer[3] = humidity;
+            AppDataBuffer[4] = temperature>>8;
+            AppDataBuffer[5] = temperature;
         }
         break;
     case 224:

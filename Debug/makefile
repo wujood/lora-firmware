@@ -30,13 +30,13 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: NewFolder2.elf
+all: NewFolder3_zyklisch.elf
 
 # Tool invocations
-NewFolder2.elf: $(OBJS) $(USER_OBJS) ../STM32L476RGTx_FLASH.ld
+NewFolder3_zyklisch.elf: $(OBJS) $(USER_OBJS) ../STM32L476RGTx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32L476RGTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "NewFolder2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32L476RGTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "NewFolder3_zyklisch.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
@@ -48,8 +48,8 @@ clean:
 
 post-build:
 	-@echo 'Generating hex and Printing size information:'
-	arm-none-eabi-objcopy -O ihex "NewFolder2.elf" "NewFolder2.hex"
-	arm-none-eabi-size "NewFolder2.elf"
+	arm-none-eabi-objcopy -O ihex "NewFolder3_zyklisch.elf" "NewFolder3_zyklisch.hex"
+	arm-none-eabi-size "NewFolder3_zyklisch.elf"
 	-@echo ' '
 
 .PHONY: all clean dependents
