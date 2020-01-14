@@ -33,9 +33,9 @@
 
 #include <stdio.h>
 #include "NvmCtxMgmt.h"
-#include "utilities.h"
-#include "eeprom.h"
-#include "nvmm.h"
+#include "LoraBib/utilities.h"
+#include "LoraBib/eeprom.h"
+#include "LoraBib/nvmm.h"
 
 /*!
  * Enables/Disables the context storage management storage at all. Must be enabled for LoRaWAN 1.1.x.
@@ -112,6 +112,7 @@ LoRaMacCtxUpdateStatus_t CtxUpdateStatus = { .Value = 0 };
 /*
  * Nvmm handles
  */
+static NvmmDataBlock_t FCntHandlerNvmCtxDataBlock;
 static NvmmDataBlock_t SecureElementNvmCtxDataBlock;
 static NvmmDataBlock_t CryptoNvmCtxDataBlock;
 #if ( MAX_PERSISTENT_CTX_MGMT_ENABLED == 1 )
@@ -163,6 +164,11 @@ void NvmCtxMgmtEvent( LoRaMacNvmCtxModule_t module )
             CtxUpdateStatus.Elements.ConfirmQueue = 1;
             break;
         }
+        case LORAMAC_NVMCTXMODULE_FCNT_HANDLER:
+        {
+            CtxUpdateStatus.Elements.FCntHandlerNvmCtx = 1;
+            break;
+        }
         default:
         {
             break;
@@ -202,6 +208,14 @@ NvmCtxMgmtStatus_t NvmCtxMgmtStore( void )
     if( CtxUpdateStatus.Elements.SecureElement == 1 )
     {
         if( NvmmWrite( &SecureElementNvmCtxDataBlock, MacContexts->SecureElementNvmCtx, MacContexts->SecureElementNvmCtxSize ) != NVMM_SUCCESS )
+        {
+            return NVMCTXMGMT_STATUS_FAIL;
+        }
+    }
+
+    if( CtxUpdateStatus.Elements.FCntHandlerNvmCtx == 1 )
+    {
+        if( NvmmWrite( &FCntHandlerNvmCtxDataBlock, MacContexts->FCntHandlerNvmCtx, MacContexts->FCntHandlerNvmCtxSize ) != NVMM_SUCCESS )
         {
             return NVMCTXMGMT_STATUS_FAIL;
         }
@@ -274,6 +288,7 @@ NvmCtxMgmtStatus_t NvmCtxMgmtRestore( void )
 
     uint8_t NvmCryptoCtxRestore[mibReq.Param.Contexts->CryptoNvmCtxSize];
     uint8_t NvmSecureElementCtxRestore[mibReq.Param.Contexts->SecureElementNvmCtxSize];
+    uint8_t NvmFCntHandlerCtxRestore[mibReq.Param.Contexts->FCntHandlerNvmCtxSize];
 #if ( MAX_PERSISTENT_CTX_MGMT_ENABLED == 1 )
     uint8_t NvmMacCtxRestore[mibReq.Param.Contexts->MacNvmCtxSize];
     uint8_t NvmRegionCtxRestore[mibReq.Param.Contexts->RegionNvmCtxSize];
@@ -298,6 +313,17 @@ NvmCtxMgmtStatus_t NvmCtxMgmtRestore( void )
         NvmmRead( &SecureElementNvmCtxDataBlock, NvmSecureElementCtxRestore, mibReq.Param.Contexts->SecureElementNvmCtxSize );
         contexts.SecureElementNvmCtx = &NvmSecureElementCtxRestore;
         contexts.SecureElementNvmCtxSize = mibReq.Param.Contexts->SecureElementNvmCtxSize;
+    }
+    else
+    {
+        status = NVMCTXMGMT_STATUS_FAIL;
+    }
+
+    if ( NvmmDeclare( &FCntHandlerNvmCtxDataBlock, mibReq.Param.Contexts->FCntHandlerNvmCtxSize ) == NVMM_SUCCESS )
+    {
+        NvmmRead( &FCntHandlerNvmCtxDataBlock, NvmFCntHandlerCtxRestore, mibReq.Param.Contexts->FCntHandlerNvmCtxSize );
+        contexts.FCntHandlerNvmCtx = &NvmFCntHandlerCtxRestore;
+        contexts.FCntHandlerNvmCtxSize = mibReq.Param.Contexts->FCntHandlerNvmCtxSize;
     }
     else
     {

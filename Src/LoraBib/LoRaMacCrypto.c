@@ -44,12 +44,17 @@
 /*!
  * Indicates if LoRaWAN 1.1.x crypto scheme is enabled
  */
-#define USE_LRWAN_1_1_X_CRYPTO                      1
+#define USE_LRWAN_1_1_X_CRYPTO                      0
 
 /*!
  * Indicates if a random devnonce must be used or not
  */
-#define USE_RANDOM_DEV_NONCE                        0
+#define USE_RANDOM_DEV_NONCE                        1
+
+/*
+ * Initial value of the frame counters
+ */
+#define FCNT_DOWN_INITAL_VALUE          0xFFFFFFFF
 
 /*
  * Frame direction definition for uplink communications
@@ -106,28 +111,40 @@
  */
 #define CRYPTO_MIC_COMPUTATION_OFFSET   JOIN_REQ_TYPE_SIZE + LORAMAC_JOIN_EUI_FIELD_SIZE + DEV_NONCE_SIZE + LORAMAC_MHDR_FIELD_SIZE
 
-/*!
- * LoRaWAN Frame counter list.
+/*
+ * LoRaMac Crypto Non Volatile Context structure
  */
-typedef struct sFCntList
+typedef struct sLoRaMacCryptoNvmCtx
 {
-    /*!
-     * Uplink frame counter which is incremented with each uplink.
+    /*
+     * Stores the information if the device is connected to a LoRaWAN network
+     * server with prior to 1.1.0 implementation.
+     */
+    Version_t LrWanVersion;
+    /*
+     * Device nonce is a counter starting at 0 when the device is initially
+     * powered up and incremented with every JoinRequest.
+     */
+    uint16_t DevNonce;
+    /*
+     * JoinNonce is a device specific counter value (that never repeats itself)
+     * provided by the join server and incremented with every JoinAccept message.
+     */
+    uint32_t JoinNonce;
+    /*
+     * Uplink frame counter.
      */
     uint32_t FCntUp;
-    /*!
-     * Network downlink frame counter which is incremented with each downlink on FPort 0
-     * or when the FPort field is missing.
+    /*
+     * Network downlink frame counter.
      */
     uint32_t NFCntDown;
-    /*!
-     * Application downlink frame counter which is incremented with each downlink
-     * on a port different than 0.
+    /*
+     * Application downlink frame counter.
      */
     uint32_t AFCntDown;
-    /*!
-     * In case if the device is connected to a LoRaWAN 1.0 Server,
-     * this counter is used for every kind of downlink frame.
+    /*
+     * Downlink frame counter for LoRaWAN 1.0 Server
      */
     uint32_t FCntDown;
     /*!
@@ -150,32 +167,6 @@ typedef struct sFCntList
      * RJcount1 is a counter incremented with every Rejoin request Type 1 frame transmitted.
      */
     uint16_t RJcount1;
-}FCntList_t;
-
-/*
- * LoRaMac Crypto Non Volatile Context structure
- */
-typedef struct sLoRaMacCryptoNvmCtx
-{
-    /*
-     * Stores the information if the device is connected to a LoRaWAN network
-     * server with prior to 1.1.0 implementation.
-     */
-    Version_t LrWanVersion;
-    /*
-     * Device nonce is a counter starting at 0 when the device is initially
-     * powered up and incremented with every JoinRequest.
-     */
-    uint16_t DevNonce;
-    /*
-     * JoinNonce is a device specific counter value (that never repeats itself)
-     * provided by the join server and incremented with every JoinAccept message.
-     */
-    uint32_t JoinNonce;
-    /*
-     * Frame counter list
-     */
-    FCntList_t FCntList;
     /*
      * LastDownFCnt stores the information which frame counter was used to unsecure the last frame.
      * This information is needed to compute ConfFCnt in B1 block for the MIC.
@@ -418,7 +409,7 @@ static LoRaMacCryptoStatus_t PrepareB0( uint16_t msgLen, KeyIdentifier_t keyID, 
         // confFCnt contains the frame counter value modulo 2^16 of the "confirmed" uplink or downlink frame that is being acknowledged
         uint16_t confFCnt = 0;
 
-        confFCnt = ( uint16_t )( CryptoCtx.NvmCtx->FCntList.FCntUp % 65536 );
+        confFCnt = ( uint16_t )( CryptoCtx.NvmCtx->FCntUp % 65536 );
 
         b0[1] = confFCnt & 0xFF;
         b0[2] = ( confFCnt >> 8 ) & 0xFF;
@@ -789,52 +780,6 @@ static LoRaMacCryptoStatus_t DeriveLifeTimeSessionKey( KeyIdentifier_t keyID, ui
 #endif
 
 /*
- * Gets the last received frame counter
- *
- * \param[IN]     fCntID       - Frame counter identifier
- * \param[IN]     lastDown     - Last downlink counter value
- *
- * \retval                     - Status of the operation
- */
-static LoRaMacCryptoStatus_t GetLastFcntDown( FCntIdentifier_t fCntID, uint32_t* lastDown )
-{
-    if( lastDown == NULL )
-    {
-        return LORAMAC_CRYPTO_ERROR_NPE;
-    }
-    switch( fCntID )
-    {
-        case N_FCNT_DOWN:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.NFCntDown;
-            CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntList.NFCntDown;
-            break;
-        case A_FCNT_DOWN:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.AFCntDown;
-            CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntList.AFCntDown;
-            break;
-        case FCNT_DOWN:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.FCntDown;
-            CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntList.FCntDown;
-            break;
-        case MC_FCNT_DOWN_0:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown0;
-            break;
-        case MC_FCNT_DOWN_1:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown1;
-            break;
-        case MC_FCNT_DOWN_2:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown2;
-            break;
-        case MC_FCNT_DOWN_3:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown3;
-            break;
-        default:
-            return LORAMAC_CRYPTO_FAIL_FCNT_ID;
-    }
-    return LORAMAC_CRYPTO_SUCCESS;
-}
-
-/*
  * Checks the downlink counter value
  *
  * \param[IN]     fCntID       - Frame counter identifier
@@ -845,9 +790,36 @@ static LoRaMacCryptoStatus_t GetLastFcntDown( FCntIdentifier_t fCntID, uint32_t*
 static bool CheckFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
 {
     uint32_t lastDown = 0;
-    if( GetLastFcntDown( fCntID, &lastDown ) != LORAMAC_CRYPTO_SUCCESS )
+    switch( fCntID )
     {
-        return false;
+        case FCNT_UP:
+            return false;
+        case N_FCNT_DOWN:
+            lastDown = CryptoCtx.NvmCtx->NFCntDown;
+            CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->NFCntDown;
+            break;
+        case A_FCNT_DOWN:
+            lastDown = CryptoCtx.NvmCtx->AFCntDown;
+            CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->AFCntDown;
+            break;
+        case FCNT_DOWN:
+            lastDown = CryptoCtx.NvmCtx->FCntDown;
+            CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntDown;
+            break;
+        case MC_FCNT_DOWN_0:
+            lastDown = CryptoCtx.NvmCtx->McFCntDown0;
+            break;
+        case MC_FCNT_DOWN_1:
+            lastDown = CryptoCtx.NvmCtx->McFCntDown1;
+            break;
+        case MC_FCNT_DOWN_2:
+            lastDown = CryptoCtx.NvmCtx->McFCntDown2;
+            break;
+        case MC_FCNT_DOWN_3:
+            lastDown = CryptoCtx.NvmCtx->McFCntDown3;
+            break;
+        default:
+            return false;
     }
     if( ( currentDown > lastDown ) ||
         // For LoRaWAN 1.0.X only. Allow downlink frames of 0
@@ -874,25 +846,25 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
     switch( fCntID )
     {
         case N_FCNT_DOWN:
-            CryptoCtx.NvmCtx->FCntList.NFCntDown = currentDown;
+            CryptoCtx.NvmCtx->NFCntDown = currentDown;
             break;
         case A_FCNT_DOWN:
-            CryptoCtx.NvmCtx->FCntList.AFCntDown = currentDown;
+            CryptoCtx.NvmCtx->AFCntDown = currentDown;
             break;
         case FCNT_DOWN:
-            CryptoCtx.NvmCtx->FCntList.FCntDown = currentDown;
+            CryptoCtx.NvmCtx->FCntDown = currentDown;
             break;
         case MC_FCNT_DOWN_0:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown0 = currentDown;
+            CryptoCtx.NvmCtx->McFCntDown0 = currentDown;
             break;
         case MC_FCNT_DOWN_1:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown1 = currentDown;
+            CryptoCtx.NvmCtx->McFCntDown1 = currentDown;
             break;
         case MC_FCNT_DOWN_2:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown2 = currentDown;
+            CryptoCtx.NvmCtx->McFCntDown2 = currentDown;
             break;
         case MC_FCNT_DOWN_3:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown3 = currentDown;
+            CryptoCtx.NvmCtx->McFCntDown3 = currentDown;
             break;
         default:
             break;
@@ -906,16 +878,15 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
 static void ResetFCnts( void )
 {
 
-    CryptoCtx.NvmCtx->FCntList.FCntUp = 0;
-    CryptoCtx.NvmCtx->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntList.FCntDown;
+    CryptoCtx.NvmCtx->FCntUp = 0;
+    CryptoCtx.NvmCtx->NFCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->AFCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->FCntDown = FCNT_DOWN_INITAL_VALUE;
 
-    CryptoCtx.NvmCtx->FCntList.McFCntDown0 = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.McFCntDown1 = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.McFCntDown2 = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.McFCntDown3 = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->McFCntDown0 = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->McFCntDown1 = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->McFCntDown2 = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->McFCntDown3 = FCNT_DOWN_INITAL_VALUE;
 
     CryptoCtx.EventCryptoNvmCtxChanged( );
 }
@@ -957,6 +928,14 @@ LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChang
     CryptoCtx.NvmCtx->LrWanVersion.Fields.Rfu = 0;
 
     // Reset frame counters
+    CryptoCtx.RJcount0 = 0;
+    CryptoCtx.NvmCtx->FCntUp = 0;
+    CryptoCtx.NvmCtx->FCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->NFCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->AFCntDown = FCNT_DOWN_INITAL_VALUE;
+
+    // Set non zero values
+    CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntDown;
     ResetFCnts( );
 
     return LORAMAC_CRYPTO_SUCCESS;
@@ -986,108 +965,6 @@ void* LoRaMacCryptoGetNvmCtx( size_t* cryptoNvmCtxSize )
 {
     *cryptoNvmCtxSize = CRYPTO_NVM_CTX_SIZE;
     return &NvmCryptoCtx;
-}
-
-LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntUp( uint32_t* currentUp )
-{
-    if( currentUp == NULL )
-    {
-        return LORAMAC_CRYPTO_ERROR_NPE;
-    }
-
-    *currentUp = CryptoCtx.NvmCtx->FCntList.FCntUp + 1;
-
-    return LORAMAC_CRYPTO_SUCCESS;
-}
-
-LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint16_t maxFCntGap, uint32_t frameFcnt, uint32_t* currentDown )
-{
-    uint32_t lastDown = 0;
-    int32_t fCntDiff = 0;
-    LoRaMacCryptoStatus_t cryptoStatus = LORAMAC_CRYPTO_ERROR;
-
-    if( currentDown == NULL )
-    {
-        return LORAMAC_CRYPTO_ERROR_NPE;
-    }
-
-    cryptoStatus = GetLastFcntDown( fCntID, &lastDown );
-    if( cryptoStatus != LORAMAC_CRYPTO_SUCCESS )
-    {
-        return cryptoStatus;
-    }
-
-    // For LoRaWAN 1.0.X only, allow downlink frames of 0
-    if( lastDown == FCNT_DOWN_INITAL_VALUE )
-    {
-         *currentDown = frameFcnt;
-    }
-    else
-    {
-        // Add difference, consider roll-over
-        fCntDiff = ( int32_t )( ( int64_t )frameFcnt - ( int64_t )( lastDown & 0x0000FFFF ) );
-
-        if( fCntDiff > 0 )
-        {  // Positive difference
-            *currentDown = lastDown + fCntDiff;
-        }
-        else if( fCntDiff == 0 )
-        {  // Duplicate FCnt value, keep the current value.
-            *currentDown = lastDown;
-            return LORAMAC_CRYPTO_FAIL_FCNT_DUPLICATED;
-        }
-        else
-        {  // Negative difference, assume a roll-over of one uint16_t
-            *currentDown = ( lastDown & 0xFFFF0000 ) + 0x10000 + frameFcnt;
-        }
-    }
-
-
-    // For LoRaWAN 1.0.X only, check maxFCntGap
-    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 0 )
-    {
-        if( ( ( int64_t )*currentDown - ( int64_t )lastDown ) >= maxFCntGap )
-        {
-            return LORAMAC_CRYPTO_FAIL_MAX_GAP_FCNT;
-        }
-    }
-
-    return LORAMAC_CRYPTO_SUCCESS;
-}
-
-LoRaMacCryptoStatus_t LoRaMacCryptoGetRJcount( FCntIdentifier_t fCntID, uint16_t* rJcount )
-{
-    if( rJcount == 0 )
-    {
-        return LORAMAC_CRYPTO_ERROR_NPE;
-    }
-    switch( fCntID )
-    {
-        case RJ_COUNT_0:
-            *rJcount = CryptoCtx.RJcount0 + 1;
-            break;
-        case RJ_COUNT_1:
-            *rJcount = CryptoCtx.NvmCtx->FCntList.RJcount1 + 1;
-            break;
-        default:
-            return LORAMAC_CRYPTO_FAIL_FCNT_ID;
-    }
-    return LORAMAC_CRYPTO_SUCCESS;
-}
-
-LoRaMacCryptoStatus_t LoRaMacCryptoSetMulticastReference( MulticastCtx_t* multicastList )
-{
-    if( multicastList == NULL )
-    {
-        return LORAMAC_CRYPTO_ERROR_NPE;
-    }
-
-    multicastList[0].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown0;
-    multicastList[1].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown1;
-    multicastList[2].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown2;
-    multicastList[3].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown3;
-
-    return LORAMAC_CRYPTO_SUCCESS;
 }
 
 LoRaMacCryptoStatus_t LoRaMacCryptoSetKey( KeyIdentifier_t keyID, uint8_t* key )
@@ -1171,7 +1048,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
     }
 
     // Check for RJcount1 overflow
-    if( CryptoCtx.NvmCtx->FCntList.RJcount1 == 65535 )
+    if( CryptoCtx.NvmCtx->RJcount1 == 65535 )
     {
         return LORAMAC_CRYPTO_ERROR_RJCOUNT1_OVERFLOW;
     }
@@ -1196,7 +1073,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
     }
 
     // Increment RJcount1
-    CryptoCtx.NvmCtx->FCntList.RJcount1++;
+    CryptoCtx.NvmCtx->RJcount1++;
     CryptoCtx.EventCryptoNvmCtxChanged( );
 
     return LORAMAC_CRYPTO_SUCCESS;
@@ -1273,7 +1150,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         }
         else
         {
-            devNonceForKeyDerivation = ( uint8_t* ) &CryptoCtx.NvmCtx->FCntList.RJcount1;
+            devNonceForKeyDerivation = ( uint8_t* ) &CryptoCtx.NvmCtx->RJcount1;
         }
     }
 #endif
@@ -1439,10 +1316,10 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 
     // Join-Accept is successfully processed, reset frame counters
     CryptoCtx.RJcount0 = 0;
-    CryptoCtx.NvmCtx->FCntList.FCntUp = 0;
-    CryptoCtx.NvmCtx->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->FCntUp = 0;
+    CryptoCtx.NvmCtx->FCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->NFCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoCtx.NvmCtx->AFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoCtx.EventCryptoNvmCtxChanged( );
 
     return LORAMAC_CRYPTO_SUCCESS;
@@ -1458,9 +1335,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         return LORAMAC_CRYPTO_ERROR_NPE;
     }
 
-    if( fCntUp < CryptoCtx.NvmCtx->FCntList.FCntUp )
+    if( fCntUp < CryptoCtx.NvmCtx->FCntUp )
     {
-        return LORAMAC_CRYPTO_FAIL_FCNT_SMALLER;
+        return LORAMAC_CRYPTO_FAIL_FCNT;
     }
 
     // Encrypt payload
@@ -1470,7 +1347,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         payloadDecryptionKeyID = NWK_S_ENC_KEY;
     }
 
-    if( fCntUp > CryptoCtx.NvmCtx->FCntList.FCntUp )
+    if( fCntUp > CryptoCtx.NvmCtx->FCntUp )
     {
         retval = PayloadEncrypt( macMsg->FRMPayload, macMsg->FRMPayloadSize, payloadDecryptionKeyID, macMsg->FHDR.DevAddr, UPLINK, fCntUp );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
@@ -1482,7 +1359,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
         {
             // Encrypt FOpts
-            retval = FOptsEncrypt( macMsg->FHDR.FCtrl.Bits.FOptsLen, macMsg->FHDR.DevAddr, UPLINK, FCNT_UP, fCntUp, macMsg->FHDR.FOpts );
+            retval = FOptsEncrypt( macMsg->FHDR.FCtrl.Bits.FOptsLen, macMsg->FHDR.DevAddr, UPLINK, FCNT_UP,  fCntUp, macMsg->FHDR.FOpts );
             if( retval != LORAMAC_CRYPTO_SUCCESS )
             {
                 return retval;
@@ -1490,7 +1367,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         }
 #endif
     }
-    CryptoCtx.NvmCtx->FCntList.FCntUp = fCntUp;
+    CryptoCtx.NvmCtx->FCntUp = fCntUp;
     CryptoCtx.EventCryptoNvmCtxChanged( );
 
     // Serialize message
@@ -1551,7 +1428,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
 
     if( CheckFCntDown( fCntID, fCntDown ) == false )
     {
-        return LORAMAC_CRYPTO_FAIL_FCNT_SMALLER;
+        return LORAMAC_CRYPTO_FAIL_FCNT;
     }
 
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;

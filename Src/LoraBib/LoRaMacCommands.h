@@ -35,11 +35,6 @@
 #ifndef __LORAMAC_COMMANDS_H__
 #define __LORAMAC_COMMANDS_H__
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <stdint.h>
 #include <stddef.h>
 #include "LoRaMacTypes.h"
@@ -218,10 +213,6 @@ LoRaMacCommandStatus_t LoRaMacCommandsSerializeCmds( size_t availableSize, size_
 LoRaMacCommandStatus_t LoRaMacCommandsStickyCmdsPending( bool* cmdsPending );
 
 /*! \} addtogroup LORAMAC */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __LORAMAC_COMMANDS_H__
 

@@ -37,7 +37,7 @@
 #ifndef __NVMCTXMGMT_H__
 #define __NVMCTXMGMT_H__
 
-#include "LoRaMac.h"
+#include "LoraBib/LoRaMac.h"
 
 /*!
  * Data structure containing the status of a operation

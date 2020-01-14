@@ -26,6 +26,8 @@
 #include "gpio.h"
 #include "spi-board.h"
 
+#define SPI_SPEED 10000000
+
 static SPI_HandleTypeDef SpiHandle[2];
 
 void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss )
@@ -70,7 +72,7 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
     {
         SpiFormat( obj, 8, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 1 );
     }
-    SpiFrequency( obj, 10000000 );
+    SpiFrequency( obj, SPI_SPEED );
 
     HAL_SPI_Init( &SpiHandle[spiId] );
 
@@ -158,4 +160,3 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 
     return( rxData );
 }
-

@@ -17,7 +17,7 @@ C_DEPS :=
 SUBDIRS := \
 Drivers/STM32L4xx_HAL_Driver/Src/Legacy \
 Drivers/STM32L4xx_HAL_Driver/Src \
-Src/LoraBib \
 Src \
+Src/LoraBib \
 startup \
 

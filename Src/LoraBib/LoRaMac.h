@@ -36,15 +36,6 @@
  *            layer and the supported features.
  * \{
  *
- * \example   classA/B-L072Z-LRWAN1/main.c
- *            LoRaWAN class A application example for the B-L072Z-LRWAN1.
- *
- * \example   classB/B-L072Z-LRWAN1/main.c
- *            LoRaWAN class B application example for the B-L072Z-LRWAN1.
- *
- * \example   classC/B-L072Z-LRWAN1/main.c
- *            LoRaWAN class C application example for the B-L072Z-LRWAN1.
- *
  * \example   classA/NAMote72/main.c
  *            LoRaWAN class A application example for the NAMote72.
  *
@@ -72,59 +63,9 @@
  * \example   classC/NucleoL152/main.c
  *            LoRaWAN class C application example for the NucleoL152.
  *
- * \example   classA/NucleoL476/main.c
- *            LoRaWAN class A application example for the NucleoL476.
- *
- * \example   classB/NucleoL476/main.c
- *            LoRaWAN class B application example for the NucleoL476.
- *
- * \example   classC/NucleoL476/main.c
- *            LoRaWAN class C application example for the NucleoL476.
- *
- * \example   classA/SAML21/main.c
- *            LoRaWAN class A application example for the SAML21.
- *
- * \example   classB/SAML21/main.c
- *            LoRaWAN class B application example for the SAML21.
- *
- * \example   classC/SAML21/main.c
- *            LoRaWAN class C application example for the SAML21.
- *
- * \example   classA/SKiM880B/main.c
- *            LoRaWAN class A application example for the SKiM880B.
- *
- * \example   classB/SKiM880B/main.c
- *            LoRaWAN class B application example for the SKiM880B.
- *
- * \example   classC/SKiM880B/main.c
- *            LoRaWAN class C application example for the SKiM880B.
- *
- * \example   classA/SKiM881AXL/main.c
- *            LoRaWAN class A application example for the SKiM881AXL.
- *
- * \example   classB/SKiM881AXL/main.c
- *            LoRaWAN class B application example for the SKiM881AXL.
- *
- * \example   classC/SKiM881AXL/main.c
- *            LoRaWAN class C application example for the SKiM881AXL.
- *
- * \example   classA/SKiM980A/main.c
- *            LoRaWAN class A application example for the SKiM980A.
- *
- * \example   classB/SKiM980A/main.c
- *            LoRaWAN class B application example for the SKiM980A.
- *
- * \example   classC/SKiM980A/main.c
- *            LoRaWAN class C application example for the SKiM980A.
- *
  */
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -367,6 +308,14 @@ typedef struct sLoRaMacCtxs
      * \brief   Size of MLME Confirm queue module context
      */
     size_t ConfirmQueueNvmCtxSize;
+    /*!
+     * \brief   Pointer to FCnt handler module context
+     */
+    void* FCntHandlerNvmCtx;
+    /*!
+     * \brief   Size of FCnt handler module context
+     */
+    size_t FCntHandlerNvmCtxSize;
 }LoRaMacCtxs_t;
 
 /*!
@@ -414,7 +363,7 @@ typedef struct sLoRaMacParams
      */
     uint32_t JoinAcceptDelay2;
     /*!
-     * Number of uplink messages repetitions [1:15]
+     * Number of uplink messages repetitions [1:15] (unconfirmed messages only)
      */
     uint8_t ChannelsNbTrans;
     /*!
@@ -736,6 +685,27 @@ typedef struct sMcpsReqConfirmed
      * Uplink datarate, if ADR is off
      */
     int8_t Datarate;
+    /*!
+     * Number of trials to transmit the frame, if the LoRaMAC layer did not
+     * receive an acknowledgment. The MAC performs a datarate adaptation,
+     * according to the LoRaWAN Specification V1.0.2, chapter 18.4, according
+     * to the following table:
+     *
+     * Transmission nb | Data Rate
+     * ----------------|-----------
+     * 1 (first)       | DR
+     * 2               | DR
+     * 3               | max(DR-1,0)
+     * 4               | max(DR-1,0)
+     * 5               | max(DR-2,0)
+     * 6               | max(DR-2,0)
+     * 7               | max(DR-3,0)
+     * 8               | max(DR-3,0)
+     *
+     * Note, that if NbTrials is set to 1 or 2, the MAC will not decrease
+     * the datarate, in case the LoRaMAC layer did not receive an acknowledgment
+     */
+    uint8_t NbTrials;
 }McpsReqConfirmed_t;
 
 /*!
@@ -815,7 +785,7 @@ typedef struct sMcpsConfirm
     /*!
      * Provides the number of retransmissions
      */
-    uint8_t NbTrans;
+    uint8_t NbRetries;
     /*!
      * The transmission time on air of the frame
      */
@@ -910,14 +880,11 @@ typedef struct sMcpsIndication
  * Name                         | Request | Indication | Response | Confirm
  * ---------------------------- | :-----: | :--------: | :------: | :-----:
  * \ref MLME_JOIN               | YES     | NO         | NO       | YES
- * \ref MLME_REJOIN_0           | YES     | NO         | NO       | YES
- * \ref MLME_REJOIN_1           | YES     | NO         | NO       | YES
  * \ref MLME_LINK_CHECK         | YES     | NO         | NO       | YES
  * \ref MLME_TXCW               | YES     | NO         | NO       | YES
  * \ref MLME_SCHEDULE_UPLINK    | NO      | YES        | NO       | NO
  * \ref MLME_DERIVE_MC_KE_KEY   | YES     | NO         | NO       | YES
  * \ref MLME_DERIVE_MC_KEY_PAIR | YES     | NO         | NO       | YES
- * \ref MLME_REVERT_JOIN        | NO      | YES        | NO       | NO
  *
  * The following table provides links to the function implementations of the
  * related MLME primitives.
@@ -1019,13 +986,6 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_BEACON_LOST,
-    /*!
-     *
-     * Indicates that the device hasn't received a RekeyConf and it reverts to the join state.
-     *
-     * \remark The upper layer is required to trigger the Join process again.
-     */
-    MLME_REVERT_JOIN,
 }Mlme_t;
 
 /*!
@@ -1033,6 +993,18 @@ typedef enum eMlme
  */
 typedef struct sMlmeReqJoin
 {
+    /*!
+     * Globally unique end-device identifier
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.2
+     */
+    uint8_t* DevEui;
+    /*!
+     * Join Sever identifier
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.1
+     */
+    uint8_t* JoinEui;
     /*!
      * Datarate used for join request.
      */
@@ -1204,8 +1176,6 @@ typedef struct sMlmeIndication
  * ----------------------------------------------| :-: | :-:
  * \ref MIB_DEVICE_CLASS                         | YES | YES
  * \ref MIB_NETWORK_ACTIVATION                   | YES | YES
- * \ref MIB_DEV_EUI                              | YES | YES
- * \ref MIB_JOIN_EUI                             | YES | YES
  * \ref MIB_ADR                                  | YES | YES
  * \ref MIB_NET_ID                               | YES | YES
  * \ref MIB_DEV_ADDR                             | YES | YES
@@ -1268,9 +1238,6 @@ typedef struct sMlmeIndication
  * \ref MIB_DEFAULT_ANTENNA_GAIN                 | YES | YES
  * \ref MIB_NVM_CTXS                             | YES | YES
  * \ref MIB_ABP_LORAWAN_VERSION                  | YES | YES
- * \ref MIB_REJOIN_0_CYCLE                       | YES | YES
- * \ref MIB_REJOIN_1_CYCLE                       | YES | YES
- * \ref MIB_REJOIN_2_CYCLE                       | YES | NO
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1294,18 +1261,6 @@ typedef enum eMib
      * LoRaWAN Specification V1.0.2
      */
     MIB_NETWORK_ACTIVATION,
-    /*!
-     * LoRaWAN device EUI
-     *
-     * LoRaWAN Specification V1.0.2
-     */
-    MIB_DEV_EUI,
-    /*!
-     * LoRaWAN join EUI
-     *
-     * LoRaWAN Specification V1.0.2
-     */
-    MIB_JOIN_EUI,
     /*!
      * Adaptive data rate
      *
@@ -1521,7 +1476,7 @@ typedef enum eMib
     /*!
      * Set the number of repetitions on a channel
      *
-     * LoRaWAN Specification V1.0.2, chapter 5.2, V1.1.0, chapter 5.3
+     * LoRaWAN Specification V1.0.2, chapter 5.2
      */
     MIB_CHANNELS_NB_TRANS,
     /*!
@@ -1602,7 +1557,7 @@ typedef enum eMib
      * The antenna gain is used to calculate the TX power of the node.
      * The formula is:
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
-     *
+     * 
      * \remark The antenna gain value is referenced to the isotropic antenna.
      *         The value is in dBi.
      *         MIB_ANTENNA_GAIN[dBi] = measuredAntennaGain[dBd] + 2.15
@@ -1613,7 +1568,7 @@ typedef enum eMib
      * The antenna gain is used to calculate the TX power of the node.
      * The formula is:
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
-     *
+     * 
      * \remark The antenna gain value is referenced to the isotropic antenna.
      *         The value is in dBi.
      *         MIB_DEFAULT_ANTENNA_GAIN[dBi] = measuredAntennaGain[dBd] + 2.15
@@ -1627,18 +1582,6 @@ typedef enum eMib
      * LoRaWAN MAC layer operating version when activated by ABP.
      */
     MIB_ABP_LORAWAN_VERSION,
-    /*!
-     * Time between periodic transmission of a Type 0 Rejoin request.
-     */
-    MIB_REJOIN_0_CYCLE,
-    /*!
-     * Time between periodic transmission of a Type 1 Rejoin request.
-     */
-    MIB_REJOIN_1_CYCLE,
-    /*!
-     * Time between periodic transmission of a Type 2 Rejoin request.
-     */
-    MIB_REJOIN_2_CYCLE,
     /*!
      * Beacon interval in ms
      */
@@ -1716,18 +1659,6 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_NETWORK_ACTIVATION
      */
     ActivationType_t NetworkActivation;
-    /*!
-     * LoRaWAN device class
-     *
-     * Related MIB type: \ref MIB_DEV_EUI
-     */
-    uint8_t* DevEui;
-    /*!
-     * LoRaWAN device class
-     *
-     * Related MIB type: \ref MIB_JOIN_EUI
-     */
-    uint8_t* JoinEui;
     /*!
      * Activation state of ADR
      *
@@ -2035,18 +1966,6 @@ typedef union uMibParam
      */
     Version_t AbpLrWanVersion;
     /*!
-     * Time in seconds between cyclic transmission of Type 0 Rejoin requests.
-     */
-    uint32_t Rejoin0CycleInSec;
-    /*!
-     * Time in seconds between cyclic transmission of Type 1 Rejoin requests.
-     */
-    uint32_t Rejoin1CycleInSec;
-    /*!
-     * Time in seconds between cyclic transmission of Type 2 Rejoin requests.
-     */
-    uint32_t Rejoin2CycleInSec;
-    /*!
      * Beacon interval in ms
      *
      * Related MIB type: \ref MIB_BEACON_INTERVAL
@@ -2345,6 +2264,10 @@ typedef enum LoRaMacNvmCtxModule_e
      * Context for the confirm queue
      */
     LORAMAC_NVMCTXMODULE_CONFIRM_QUEUE,
+    /*!
+     * Context for the frame count handler
+     */
+    LORAMAC_NVMCTXMODULE_FCNT_HANDLER
 }LoRaMacNvmCtxModule_t;
 
 
@@ -2656,15 +2579,32 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet );
  *
  * \details The Mac layer management entity handles management services. The
  *          following code-snippet shows how to use the API to perform a
- *          network join request. Please note that for a join request, the
- *          DevEUI and the JoinEUI must be set previously via the MIB. Please
- *          also refer to the sample implementations.
+ *          network join request.
  *
  * \code
+ * static uint8_t DevEui[] =
+ * {
+ *   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+ * };
+ * static uint8_t JoinEui[] =
+ * {
+ *   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+ * };
+ * static uint8_t NwkKey[] =
+ * {
+ *   0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
+ *   0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
+ * };
+ * static uint8_t AppKey[] =
+ * {
+ *   0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
+ *   0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
+ * };
  *
  * MlmeReq_t mlmeReq;
  * mlmeReq.Type = MLME_JOIN;
- * mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+ * mlmeReq.Req.Join.DevEui = DevEui;
+ * mlmeReq.Req.Join.JoinEui = JoinEui;
  *
  * if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
  * {
@@ -2725,9 +2665,5 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
 #include "Region.h"
 
 /*! \} defgroup LORAMAC */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __LORAMAC_H__

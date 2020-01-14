@@ -10,9 +10,9 @@ C_SRCS += \
 ../Src/LoraBib/LoRaMacCommands.c \
 ../Src/LoraBib/LoRaMacConfirmQueue.c \
 ../Src/LoraBib/LoRaMacCrypto.c \
+../Src/LoraBib/LoRaMacFCntHandler.c \
 ../Src/LoraBib/LoRaMacParser.c \
 ../Src/LoraBib/LoRaMacSerializer.c \
-../Src/LoraBib/NvmCtxMgmt.c \
 ../Src/LoraBib/Region.c \
 ../Src/LoraBib/RegionAS923.c \
 ../Src/LoraBib/RegionAU915.c \
@@ -69,9 +69,9 @@ OBJS += \
 ./Src/LoraBib/LoRaMacCommands.o \
 ./Src/LoraBib/LoRaMacConfirmQueue.o \
 ./Src/LoraBib/LoRaMacCrypto.o \
+./Src/LoraBib/LoRaMacFCntHandler.o \
 ./Src/LoraBib/LoRaMacParser.o \
 ./Src/LoraBib/LoRaMacSerializer.o \
-./Src/LoraBib/NvmCtxMgmt.o \
 ./Src/LoraBib/Region.o \
 ./Src/LoraBib/RegionAS923.o \
 ./Src/LoraBib/RegionAU915.o \
@@ -128,9 +128,9 @@ C_DEPS += \
 ./Src/LoraBib/LoRaMacCommands.d \
 ./Src/LoraBib/LoRaMacConfirmQueue.d \
 ./Src/LoraBib/LoRaMacCrypto.d \
+./Src/LoraBib/LoRaMacFCntHandler.d \
 ./Src/LoraBib/LoRaMacParser.d \
 ./Src/LoraBib/LoRaMacSerializer.d \
-./Src/LoraBib/NvmCtxMgmt.d \
 ./Src/LoraBib/Region.d \
 ./Src/LoraBib/RegionAS923.d \
 ./Src/LoraBib/RegionAU915.d \
@@ -186,7 +186,7 @@ Src/LoraBib/%.o: ../Src/LoraBib/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32L476xx -I"C:/Users/Matze/workspace/NewFolder3_zyklisch/Inc" -I"C:/Users/Matze/workspace/NewFolder3_zyklisch/Drivers/STM32L4xx_HAL_Driver/Inc" -I"C:/Users/Matze/workspace/NewFolder3_zyklisch/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Matze/workspace/NewFolder3_zyklisch/Drivers/CMSIS/Device/ST/STM32L4xx/Include" -I"C:/Users/Matze/workspace/NewFolder3_zyklisch/Drivers/CMSIS/Include"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -DUSE_HAL_DRIVER -DSTM32L476xx -I"C:/Users/Matze/workspace/NewFolder2/Inc" -I"C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc" -I"C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Device/ST/STM32L4xx/Include" -I"C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Include"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

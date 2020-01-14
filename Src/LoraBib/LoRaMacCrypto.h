@@ -37,22 +37,12 @@
 #ifndef __LORAMAC_CRYPTO_H__
 #define __LORAMAC_CRYPTO_H__
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "utilities.h"
 #include "LoRaMacTypes.h"
 #include "LoRaMacMessageTypes.h"
-
-/*
- * Initial value of the frame counters
- */
-#define FCNT_DOWN_INITAL_VALUE          0xFFFFFFFF
 
 /*!
  * LoRaMac Cryto Status
@@ -80,21 +70,9 @@ typedef enum eLoRaMacCryptoStatus
      */
     LORAMAC_CRYPTO_FAIL_RJCOUNT0_OVERFLOW,
     /*!
-     * FCNT_ID is not supported
+     * FCntUp/Down check failed
      */
-    LORAMAC_CRYPTO_FAIL_FCNT_ID,
-    /*!
-     * FCntUp/Down check failed (new FCnt is smaller than previous one)
-     */
-    LORAMAC_CRYPTO_FAIL_FCNT_SMALLER,
-    /*!
-     * FCntUp/Down check failed (duplicated)
-     */
-    LORAMAC_CRYPTO_FAIL_FCNT_DUPLICATED,
-    /*!
-     * MAX_GAP_FCNT check failed
-     */
-    LORAMAC_CRYPTO_FAIL_MAX_GAP_FCNT,
+    LORAMAC_CRYPTO_FAIL_FCNT,
     /*!
      * Not allowed parameter value
      */
@@ -185,44 +163,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoRestoreNvmCtx( void* cryptoNvmCtx );
  * \retval                         - Points to a structure where the module store its non-volatile context
  */
 void* LoRaMacCryptoGetNvmCtx( size_t* cryptoNvmCtxSize );
-
-/*!
- * Returns updated fCntID downlink counter value.
- *
- * \param[IN]     fCntID         - Frame counter identifier
- * \param[IN]     maxFcntGap     - Maximum allowed frame counter difference (only necessary for L2 LW1.0.x)
- * \param[IN]     frameFcnt      - Received frame counter (used to update current counter value)
- * \param[OUT]    currentDown    - Current downlink counter value
- * \retval                       - Status of the operation
- */
-LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint16_t maxFCntGap, uint32_t frameFcnt, uint32_t* currentDown );
-
-/*!
- * Returns updated fCntUp uplink counter value.
- *
- * \param[IN]     currentUp      - Uplink counter value
- * \retval                       - Status of the operation
- */
-LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntUp( uint32_t* currentUp );
-
-/*!
- * Computes next RJcount0 or RJcount1 counter value.
- *
- * \param[IN]     fCntID          - Frame counter identifier
- * \param[OUT]    rJcount         - RJcount value
- *
- * \retval                        - Status of the operation
- */
-LoRaMacCryptoStatus_t LoRaMacCryptoGetRJcount( FCntIdentifier_t fCntID, uint16_t* rJcount );
-
-/*!
- * Provides multicast context.
- *
- * \param[IN]     multicastList - Pointer to the multicast context list
- *
- * \retval                      - Status of the operation
- */
-LoRaMacCryptoStatus_t LoRaMacCryptoSetMulticastReference( MulticastCtx_t* multicastList );
 
 /*!
  * Sets a key
@@ -331,9 +271,5 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID );
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t addrID, uint32_t mcAddr );
 
 /*! \} addtogroup LORAMAC */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // __LORAMAC_CRYPTO_H__

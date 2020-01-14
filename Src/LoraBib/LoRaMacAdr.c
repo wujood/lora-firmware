@@ -65,6 +65,10 @@ static bool CalcNextV10X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* t
             if( adrNext->AdrAckCounter >=  adrNext->AdrAckLimit )
             {
                 adrAckReq = true;
+                // Set TX Power to maximum
+                getPhy.Attribute = PHY_MAX_TX_POWER;
+                phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
+                txPower = phyParam.Value;
             }
             else
             {
@@ -72,11 +76,6 @@ static bool CalcNextV10X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* t
             }
             if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay ) )
             {
-                // Set TX Power to maximum
-                getPhy.Attribute = PHY_MAX_TX_POWER;
-                phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
-                txPower = phyParam.Value;
-
                 if( ( adrNext->AdrAckCounter % adrNext->AdrAckDelay ) == 1 )
                 {
                     // Decrease the datarate
@@ -107,81 +106,6 @@ static bool CalcNextV10X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* t
     return adrAckReq;
 }
 
-static bool CalcNextV11X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter )
-{
-    bool adrAckReq = false;
-    int8_t datarate = adrNext->Datarate;
-    int8_t txPower = adrNext->TxPower;
-    int8_t minTxDatarate;
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
-
-    // Report back the adr ack counter
-    *adrAckCounter = adrNext->AdrAckCounter;
-
-    if( adrNext->AdrEnabled == true )
-    {
-        // Query minimum TX Datarate
-        getPhy.Attribute = PHY_MIN_TX_DR;
-        getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
-        phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
-        minTxDatarate = phyParam.Value;
-        datarate = MAX( datarate, minTxDatarate );
-
-        if( datarate == minTxDatarate )
-        {
-            *adrAckCounter = 0;
-            adrAckReq = false;
-        }
-        else
-        {
-            if( adrNext->AdrAckCounter >= adrNext->AdrAckLimit )
-            {
-                adrAckReq = true;
-            }
-        }
-
-        if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay ) )
-        {
-            if( adrNext->AdrAckCounter >= ( uint32_t )( adrNext->AdrAckLimit + adrNext->AdrAckDelay + adrNext->AdrAckDelay ) )
-            {
-                if( ( adrNext->AdrAckCounter % adrNext->AdrAckDelay ) == 1 )
-                {
-                    if( datarate == minTxDatarate )
-                    {
-                        // Unset adrAckReq as soon as we sent ADR_ACK_DELAY times with  the lowest datarate
-                        adrAckReq = false;
-                        if( adrNext->UpdateChanMask == true )
-                        {
-                            InitDefaultsParams_t params;
-                            params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
-                            RegionInitDefaults( adrNext->Region, &params );
-                        }
-                    }
-
-                    // Decrease the datarate
-                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
-                    getPhy.Datarate = datarate;
-                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
-                    phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
-                    datarate = phyParam.Value;
-                }
-            }
-            else
-            {
-                // Set TX Power to maximum
-                getPhy.Attribute = PHY_MAX_TX_POWER;
-                phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
-                txPower = phyParam.Value;
-            }
-        }
-    }
-
-    *drOut = datarate;
-    *txPowOut = txPower;
-    return adrAckReq;
-}
-
 /*!
  * \brief Calculates the next datarate to set, when ADR is on or off.
  *
@@ -201,8 +125,5 @@ bool LoRaMacAdrCalcNext( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* tx
     {
         return CalcNextV10X( adrNext, drOut, txPowOut, adrAckCounter );
     }
-    else
-    {
-        return CalcNextV11X( adrNext, drOut, txPowOut, adrAckCounter );
-    }
+    return false;
 }

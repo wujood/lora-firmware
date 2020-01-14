@@ -6,7 +6,8 @@ Src/LoraBib/LoRaMac.o: ../Src/LoraBib/LoRaMac.c \
  ../Src/LoraBib/LoRaMacMessageTypes.h ../Src/LoraBib/LoRaMacHeaderTypes.h \
  ../Src/LoraBib/secure-element.h ../Src/LoraBib/LoRaMacTest.h \
  ../Src/LoraBib/LoRaMacConfirmQueue.h ../Src/LoraBib/LoRaMacParser.h \
- ../Src/LoraBib/LoRaMacCommands.h ../Src/LoraBib/LoRaMacAdr.h
+ ../Src/LoraBib/LoRaMacFCntHandler.h ../Src/LoraBib/LoRaMacCommands.h \
+ ../Src/LoraBib/LoRaMacAdr.h
 
 ../Src/LoraBib/utilities.h:
 
@@ -37,6 +38,8 @@ Src/LoraBib/LoRaMac.o: ../Src/LoraBib/LoRaMac.c \
 ../Src/LoraBib/LoRaMacConfirmQueue.h:
 
 ../Src/LoraBib/LoRaMacParser.h:
+
+../Src/LoraBib/LoRaMacFCntHandler.h:
 
 ../Src/LoraBib/LoRaMacCommands.h:
 
