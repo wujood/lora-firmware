@@ -37,6 +37,7 @@ void I2cInit( I2c_t *obj, I2cId_t i2cId, PinNames scl, PinNames sda )
 
         I2cMcuInit( obj, i2cId, scl, sda );
         I2cMcuFormat( obj, MODE_I2C, I2C_DUTY_CYCLE_2, true, I2C_ACK_ADD_7_BIT, 400000 );
+
     }
 }
 
@@ -78,7 +79,7 @@ uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t data )
     }
 }
 
-uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size )
+uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t addr, uint8_t *buffer, uint16_t size )
 {
     if( I2cInitialized == true )
     {
@@ -117,7 +118,7 @@ uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *data )
     }
 }
 
-uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size )
+uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t addr, uint8_t *buffer, uint16_t size )
 {
     if( I2cInitialized == true )
     {

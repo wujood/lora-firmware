@@ -71,6 +71,8 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
     else
     {
         SpiFormat( obj, 8, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 1 );
+
+
     }
     SpiFrequency( obj, SPI_SPEED );
 

@@ -24,12 +24,13 @@
 #include "LoraBib/utilities.h"
 #include "LoraBib/board.h"
 #include "LoraBib/gpio.h"
-
+#include "LoraBib/bme280.h"
+#include "LoraBib/sensors.h"
 #include "Commissioning.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
 #include "LmHandlerMsgDisplay.h"
-
+#include "LoraBib/bme280_defs.h"
 #define ACTIVE_REGION LORAMAC_REGION_EU868
 
 #ifndef ACTIVE_REGION
@@ -48,13 +49,13 @@
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            30000
+#define APP_TX_DUTYCYCLE                            15000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
  * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        3000
+#define APP_TX_DUTYCYCLE_RND                        1000
 
 /*!
  * LoRaWAN Adaptive Data Rate
@@ -229,6 +230,9 @@ static volatile uint8_t IsTxFramePending = 0;
 extern Gpio_t Led1; // Tx
 extern Gpio_t Led2; // Rx
 
+static uint16_t distance;
+struct bme280_data bme_data;
+
 /*!
  * Main application entry point.
  */
@@ -262,6 +266,13 @@ int main( void )
 
     StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
 
+
+
+    // Testcode
+//    GpioInit(&PowerControl, PF_4, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN,0);
+
+
+
     while( 1 )
     {
         // Processes the LoRaMac events
@@ -269,6 +280,8 @@ int main( void )
 
         // Process application uplinks management
         UplinkProcess( );
+
+//        GpioToggle(&PowerControl);
 
         CRITICAL_SECTION_BEGIN( );
         if( IsMacProcessPending == 1 )
@@ -398,13 +411,17 @@ static void PrepareTxFrame( void )
     }
 
     // uint8_t channel = 0;
-
+    uint16_t temperature = bme_data.temperature+5000;
+    uint16_t humidity = bme_data.humidity/2;
     AppData.Port = LORAWAN_APP_PORT;
 
-    AppData.Buffer[0] = 0xAB;
-    AppData.Buffer[1] = 0xCD;
-    AppData.Buffer[2] = 0xEF;
-    AppData.BufferSize = 3;
+    AppData.Buffer[0] = distance >> 8;
+    AppData.Buffer[1] = distance;
+    AppData.Buffer[2] = humidity >> 8;
+    AppData.Buffer[3] = humidity;
+    AppData.Buffer[4] = temperature >>8;
+    AppData.Buffer[5] = temperature;
+    AppData.BufferSize = 6;
 
     // CayenneLppReset( );
     // CayenneLppAddDigitalInput( channel++, AppLedStateOn );
@@ -460,7 +477,13 @@ static void UplinkProcess( void )
  */
 static void OnTxTimerEvent( void* context )
 {
+	int8_t rslt = BME280_OK;
+
     TimerStop( &TxTimer );
+
+    rslt = stream_bme280_data_forced_mode(&bme280,&bme_data);
+    distance = stream_vl53l0x_data_forced_mode();
+
 
     IsTxFramePending = 1;
 

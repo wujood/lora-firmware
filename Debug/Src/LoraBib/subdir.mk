@@ -28,6 +28,7 @@ C_SRCS += \
 ../Src/LoraBib/adc-board.c \
 ../Src/LoraBib/adc.c \
 ../Src/LoraBib/aes.c \
+../Src/LoraBib/bme280.c \
 ../Src/LoraBib/board.c \
 ../Src/LoraBib/cmac.c \
 ../Src/LoraBib/delay-board.c \
@@ -42,6 +43,7 @@ C_SRCS += \
 ../Src/LoraBib/gpio-ioe.c \
 ../Src/LoraBib/gpio.c \
 ../Src/LoraBib/gps.c \
+../Src/LoraBib/i2c-board.c \
 ../Src/LoraBib/i2c.c \
 ../Src/LoraBib/lpm-board.c \
 ../Src/LoraBib/mag3110.c \
@@ -50,6 +52,7 @@ C_SRCS += \
 ../Src/LoraBib/nvmm.c \
 ../Src/LoraBib/pam7q.c \
 ../Src/LoraBib/rtc-board.c \
+../Src/LoraBib/sensors.c \
 ../Src/LoraBib/soft-se.c \
 ../Src/LoraBib/spi-board.c \
 ../Src/LoraBib/sx1276.c \
@@ -60,7 +63,8 @@ C_SRCS += \
 ../Src/LoraBib/timer.c \
 ../Src/LoraBib/uart-board.c \
 ../Src/LoraBib/uart.c \
-../Src/LoraBib/utilities.c 
+../Src/LoraBib/utilities.c \
+../Src/LoraBib/vl53l0x.c 
 
 OBJS += \
 ./Src/LoraBib/LoRaMac.o \
@@ -87,6 +91,7 @@ OBJS += \
 ./Src/LoraBib/adc-board.o \
 ./Src/LoraBib/adc.o \
 ./Src/LoraBib/aes.o \
+./Src/LoraBib/bme280.o \
 ./Src/LoraBib/board.o \
 ./Src/LoraBib/cmac.o \
 ./Src/LoraBib/delay-board.o \
@@ -101,6 +106,7 @@ OBJS += \
 ./Src/LoraBib/gpio-ioe.o \
 ./Src/LoraBib/gpio.o \
 ./Src/LoraBib/gps.o \
+./Src/LoraBib/i2c-board.o \
 ./Src/LoraBib/i2c.o \
 ./Src/LoraBib/lpm-board.o \
 ./Src/LoraBib/mag3110.o \
@@ -109,6 +115,7 @@ OBJS += \
 ./Src/LoraBib/nvmm.o \
 ./Src/LoraBib/pam7q.o \
 ./Src/LoraBib/rtc-board.o \
+./Src/LoraBib/sensors.o \
 ./Src/LoraBib/soft-se.o \
 ./Src/LoraBib/spi-board.o \
 ./Src/LoraBib/sx1276.o \
@@ -119,7 +126,8 @@ OBJS += \
 ./Src/LoraBib/timer.o \
 ./Src/LoraBib/uart-board.o \
 ./Src/LoraBib/uart.o \
-./Src/LoraBib/utilities.o 
+./Src/LoraBib/utilities.o \
+./Src/LoraBib/vl53l0x.o 
 
 C_DEPS += \
 ./Src/LoraBib/LoRaMac.d \
@@ -146,6 +154,7 @@ C_DEPS += \
 ./Src/LoraBib/adc-board.d \
 ./Src/LoraBib/adc.d \
 ./Src/LoraBib/aes.d \
+./Src/LoraBib/bme280.d \
 ./Src/LoraBib/board.d \
 ./Src/LoraBib/cmac.d \
 ./Src/LoraBib/delay-board.d \
@@ -160,6 +169,7 @@ C_DEPS += \
 ./Src/LoraBib/gpio-ioe.d \
 ./Src/LoraBib/gpio.d \
 ./Src/LoraBib/gps.d \
+./Src/LoraBib/i2c-board.d \
 ./Src/LoraBib/i2c.d \
 ./Src/LoraBib/lpm-board.d \
 ./Src/LoraBib/mag3110.d \
@@ -168,6 +178,7 @@ C_DEPS += \
 ./Src/LoraBib/nvmm.d \
 ./Src/LoraBib/pam7q.d \
 ./Src/LoraBib/rtc-board.d \
+./Src/LoraBib/sensors.d \
 ./Src/LoraBib/soft-se.d \
 ./Src/LoraBib/spi-board.d \
 ./Src/LoraBib/sx1276.d \
@@ -178,7 +189,8 @@ C_DEPS += \
 ./Src/LoraBib/timer.d \
 ./Src/LoraBib/uart-board.d \
 ./Src/LoraBib/uart.d \
-./Src/LoraBib/utilities.d 
+./Src/LoraBib/utilities.d \
+./Src/LoraBib/vl53l0x.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

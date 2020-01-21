@@ -31,6 +31,7 @@
 #include "board-config.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
+#include "sensors.h"
 
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     #include "sx126x-board.h"
@@ -58,6 +59,8 @@ Gpio_t Led2;
  * MCU objects
  */
 Uart_t Uart2;
+
+
 
 /*!
  * Initializes the unused GPIO to a know status
@@ -135,6 +138,52 @@ void BoardCriticalSectionEnd( uint32_t *mask )
 
 void BoardInitPeriph( void )
 {
+	int8_t rslt = BME280_OK;
+
+	bme280.dev_id = 0;
+	bme280.intf = BME280_SPI_INTF;
+	bme280.read = bme280_spi_read;
+	bme280.write = bme280_spi_write;
+	bme280.delay_ms = user_delay_ms;
+
+
+    SpiInit( &bme280.Spi, SPI_1, BME280_MOSI, BME280_MISO, BME280_SCLK, NC );
+    GpioInit( &bme280.Spi.Nss, BME280_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+
+
+	rslt = bme280_init(&bme280);
+
+
+	// Abstandssensor
+	vl53l0x.deviceAddr = 0x52;
+	vl53l0x.read = vl53l0x_i2c_read;
+	vl53l0x.write = vl53l0x_i2c_write;
+	vl53l0x.delay_ms = user_delay_ms;
+
+
+	I2cInit(&vl53l0x.I2c, I2C_1, VL53L0x_SCL, VL53L0x_SDA );
+	int i;
+
+	uint8_t adada=0;
+	uint8_t adadb[2];
+//	adadb[0]=0x00;
+//	adadb[1]=0x99;
+
+	// For Raspberry Pi's, the I2C channel is usually 1
+	// For other boards (e.g. OrangePi) it's 0
+
+
+//	vl53l0x_i2c_write(0x51,adadb,2);
+//	vl53l0x_i2c_read(0x51,adadb,2);
+//	vl53l0x_i2c_read(0xC0,&adada,1);
+//	vl53l0x_i2c_write(0xC0,&adada,1);
+//	vl53l0x_i2c_read(0xC0,&adada,1);
+//	vl53l0x_i2c_read(0xC1,&adada,1);
+//	vl53l0x_i2c_read(0xC2,&adada,1);
+//	vl53l0x_i2c_read(0x51,adadb,2);
+//	vl53l0x_i2c_read(0x61,adadb,2);
+	i = initSensor(&vl53l0x, 1); // set long range mode (up to 2m)
+
 
 }
 
@@ -166,6 +215,7 @@ void BoardInitMcu( void )
         if( GetBoardPowerSource( ) == BATTERY_POWER )
         {
             // Disables OFF mode - Enables lowest power mode (STOP)
+//        	LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
             LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
         }
     }
@@ -184,6 +234,8 @@ void BoardInitMcu( void )
     SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1276IoInit( );
 #endif
+
+
 
     if( McuInitialized == false )
     {
@@ -461,10 +513,39 @@ uint8_t GetBoardPowerSource( void )
 }
 
 /**
+ * Edited by OL
+ */
+
+void LpmEnterOffMode( void){
+    CRITICAL_SECTION_BEGIN( );
+
+    BoardDeInitMcu( );
+
+    CRITICAL_SECTION_END( );
+    // Enter Shutdown Mode
+
+    HAL_PWREx_EnterSHUTDOWNMode();
+}
+
+void LpmExitOffMode( void){
+	 // Disable IRQ while the MCU is not running on HSI
+	 CRITICAL_SECTION_BEGIN( );
+
+	 // Initilizes the peripherals
+	 BoardInitMcu( );
+
+	 CRITICAL_SECTION_END( );
+}
+
+
+/**
   * \brief Enters Low Power Stop Mode
   *
   * \note ARM exists the function when waking up
   */
+
+
+
 void LpmEnterStopMode( void)
 {
     CRITICAL_SECTION_BEGIN( );

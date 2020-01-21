@@ -113,7 +113,7 @@ void I2cMcuResetBus( I2c_t *obj );
  * \param [IN] buffer           data buffer to write
  * \param [IN] size             number of data bytes to write
  */
-uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size );
+uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t addr, uint8_t *buffer, uint16_t size );
 
 /*!
  * \brief Read data buffer from the I2C device
@@ -124,7 +124,7 @@ uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_
  * \param [IN] buffer           data buffer to read
  * \param [IN] size             number of data bytes to read
  */
-uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size );
+uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t addr, uint8_t *buffer, uint16_t size );
 
 /*!
  * \brief Waits until the given device is in standby mode
