@@ -26,11 +26,14 @@
 #include "LoraBib/gpio.h"
 #include "LoraBib/bme280.h"
 #include "LoraBib/sensors.h"
+#include "LoraBib/rtc-board.h"
 #include "Commissioning.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
 #include "LmHandlerMsgDisplay.h"
 #include "LoraBib/bme280_defs.h"
+
+
 #define ACTIVE_REGION LORAMAC_REGION_EU868
 
 #ifndef ACTIVE_REGION
@@ -49,7 +52,7 @@
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            15000
+#define APP_TX_DUTYCYCLE                            180000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
@@ -93,6 +96,7 @@
  * @remark The allowed port range is from 1 up to 223. Other values are reserved.
  */
 #define LORAWAN_APP_PORT                            2
+
 
 /*!
  *
@@ -233,11 +237,13 @@ extern Gpio_t Led2; // Rx
 static uint16_t distance;
 struct bme280_data bme_data;
 
+
 /*!
  * Main application entry point.
  */
 int main( void )
 {
+	uint32_t test = 0;
     BoardInitMcu( );
     BoardInitPeriph( );
 
@@ -262,16 +268,25 @@ int main( void )
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
 
-    LmHandlerJoin( );
+    if(0) {
+    	DeleteBackup();
+    	while(1){
+
+    	}
+    }
+
+    if ( GetNetworkActivation() ){
+    	RestoreLmHandlerJoin();
+    	RestoreRxDone();
+    	RestoreMacCtx();
+
+    }
+    else
+    {
+    	LmHandlerJoin( );
+    }
 
     StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
-
-
-
-    // Testcode
-//    GpioInit(&PowerControl, PF_4, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN,0);
-
-
 
     while( 1 )
     {
@@ -281,7 +296,6 @@ int main( void )
         // Process application uplinks management
         UplinkProcess( );
 
-//        GpioToggle(&PowerControl);
 
         CRITICAL_SECTION_BEGIN( );
         if( IsMacProcessPending == 1 )
@@ -405,14 +419,28 @@ static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
  */
 static void PrepareTxFrame( void )
 {
-    if( LmHandlerIsBusy( ) == true )
+    uint16_t temperature = 0xFFFF;
+    uint16_t humidity = 0xFFFF;
+	int8_t rslt = BME280_OK;
+
+    rslt = stream_bme280_data_forced_mode(&bme280,&bme_data);
+    distance = stream_vl53l0x_data_forced_mode();
+
+
+	if( LmHandlerIsBusy( ) == true )
     {
         return;
     }
 
     // uint8_t channel = 0;
-    uint16_t temperature = bme_data.temperature+5000;
-    uint16_t humidity = bme_data.humidity/2;
+
+    if ((bme_data.temperature<=8500 && bme_data.temperature>=-4000) && (rslt==BME280_OK))
+    	temperature = bme_data.temperature+5000;
+    if ((bme_data.humidity<=102400) && (rslt==BME280_OK))
+    	humidity =  bme_data.humidity/2;
+    if (distance>2000)
+    	distance = 0xFFFF;
+
     AppData.Port = LORAWAN_APP_PORT;
 
     AppData.Buffer[0] = distance >> 8;
@@ -477,12 +505,8 @@ static void UplinkProcess( void )
  */
 static void OnTxTimerEvent( void* context )
 {
-	int8_t rslt = BME280_OK;
 
     TimerStop( &TxTimer );
-
-    rslt = stream_bme280_data_forced_mode(&bme280,&bme_data);
-    distance = stream_vl53l0x_data_forced_mode();
 
 
     IsTxFramePending = 1;

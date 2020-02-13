@@ -32,6 +32,7 @@
 #include "lpm-board.h"
 #include "rtc-board.h"
 #include "sensors.h"
+#include "delay.h"
 
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     #include "sx126x-board.h"
@@ -49,12 +50,16 @@
 #define         ID2                                 ( 0x1FFF7594 )
 #define         ID3                                 ( 0x1FFF7594 )
 
+
+static __IO uint32_t TimingDelay;
+
 /*!
  * LED GPIO pins objects
  */
 Gpio_t Led1;
 Gpio_t Led2;
-
+Gpio_t TestSD;
+Gpio_t TestSD2;
 /*
  * MCU objects
  */
@@ -138,53 +143,35 @@ void BoardCriticalSectionEnd( uint32_t *mask )
 
 void BoardInitPeriph( void )
 {
-	int8_t rslt = BME280_OK;
 
 	bme280.dev_id = 0;
 	bme280.intf = BME280_SPI_INTF;
 	bme280.read = bme280_spi_read;
 	bme280.write = bme280_spi_write;
-	bme280.delay_ms = user_delay_ms;
+	bme280.delay_ms = DelayMs;
 
 
     SpiInit( &bme280.Spi, SPI_1, BME280_MOSI, BME280_MISO, BME280_SCLK, NC );
     GpioInit( &bme280.Spi.Nss, BME280_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
 
 
-	rslt = bme280_init(&bme280);
+    bme280_init(&bme280);
 
 
 	// Abstandssensor
 	vl53l0x.deviceAddr = 0x52;
 	vl53l0x.read = vl53l0x_i2c_read;
 	vl53l0x.write = vl53l0x_i2c_write;
-	vl53l0x.delay_ms = user_delay_ms;
+	vl53l0x.delay_ms = DelayMs;
 
 
 	I2cInit(&vl53l0x.I2c, I2C_1, VL53L0x_SCL, VL53L0x_SDA );
-	int i;
 
-	uint8_t adada=0;
-	uint8_t adadb[2];
-//	adadb[0]=0x00;
-//	adadb[1]=0x99;
 
 	// For Raspberry Pi's, the I2C channel is usually 1
 	// For other boards (e.g. OrangePi) it's 0
 
-
-//	vl53l0x_i2c_write(0x51,adadb,2);
-//	vl53l0x_i2c_read(0x51,adadb,2);
-//	vl53l0x_i2c_read(0xC0,&adada,1);
-//	vl53l0x_i2c_write(0xC0,&adada,1);
-//	vl53l0x_i2c_read(0xC0,&adada,1);
-//	vl53l0x_i2c_read(0xC1,&adada,1);
-//	vl53l0x_i2c_read(0xC2,&adada,1);
-//	vl53l0x_i2c_read(0x51,adadb,2);
-//	vl53l0x_i2c_read(0x61,adadb,2);
-	i = initSensor(&vl53l0x, 1); // set long range mode (up to 2m)
-
-
+	initSensor(&vl53l0x, 1); // set long range mode (up to 2m)
 }
 
 void BoardInitMcu( void )
@@ -198,6 +185,10 @@ void BoardInitMcu( void )
         // LEDs
         GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+
+        GpioInit( &TestSD, PC_8, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &TestSD2, PC_13, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioWrite( &TestSD2,1);
 
         SystemClockConfig( );
 
@@ -215,8 +206,8 @@ void BoardInitMcu( void )
         if( GetBoardPowerSource( ) == BATTERY_POWER )
         {
             // Disables OFF mode - Enables lowest power mode (STOP)
-//        	LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
-            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
+        	LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
+//            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
         }
     }
     else
@@ -518,7 +509,7 @@ uint8_t GetBoardPowerSource( void )
 
 void LpmEnterOffMode( void){
     CRITICAL_SECTION_BEGIN( );
-
+    GpioWrite(&TestSD2,0);
     BoardDeInitMcu( );
 
     CRITICAL_SECTION_END( );
@@ -533,8 +524,9 @@ void LpmExitOffMode( void){
 
 	 // Initilizes the peripherals
 	 BoardInitMcu( );
-
+	 GpioWrite(&TestSD2,1);
 	 CRITICAL_SECTION_END( );
+
 }
 
 
@@ -675,3 +667,22 @@ void assert_failed( uint8_t* file, uint32_t line )
     }
 }
 #endif
+
+
+
+void HAL_SYSTICK_Callback(void)
+{
+  HAL_IncTick();
+  if (TimingDelay != 0)
+  {
+    TimingDelay--;
+  }
+  else
+  {
+
+    /* Toggle LED2 */
+    	GpioToggle(&TestSD);
+    TimingDelay = 100;
+  }
+
+}

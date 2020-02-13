@@ -34,7 +34,7 @@ extern "C"
  * Generic definition
  */
 #ifndef SUCCESS
-#define SUCCESS                                     1
+#define SUCCESS                                    	1
 #endif
 
 #ifndef FAIL

@@ -178,6 +178,8 @@ void RtcBkupWrite( uint32_t data0, uint32_t data1 );
  */
 void RtcBkupRead( uint32_t* data0, uint32_t* data1 );
 
+void RtcBackupWrite( uint32_t data, uint32_t data_type);
+uint32_t RtcBackupRead( uint32_t data_type);
 /*!
  * \brief Processes pending timer events
  */

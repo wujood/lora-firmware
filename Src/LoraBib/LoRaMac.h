@@ -2658,6 +2658,15 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest );
  */
 LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
 
+
+void RestoreRxDone( void );
+
+void RestoreMacCtx(void);
+
+void DeleteBackup(void);
+uint8_t GetNetworkActivation (void);
+
+LoRaMacStatus_t RestoreLoRaMacMlmeRequest( MlmeReq_t* mlmeRequest );
 /*!
  * Automatically add the Region.h file at the end of LoRaMac.h file.
  * This is required because Region.h uses definitions from LoRaMac.h

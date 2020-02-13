@@ -270,6 +270,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID );
  */
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t addrID, uint32_t mcAddr );
 
+LoRaMacCryptoStatus_t LoRaMacCryptoRestoreJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEUI, LoRaMacMessageJoinAccept_t* macMsg );
 /*! \} addtogroup LORAMAC */
 
 #endif // __LORAMAC_CRYPTO_H__

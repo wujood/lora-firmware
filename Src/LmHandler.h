@@ -249,6 +249,8 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
  */
 void LmHandlerJoin( void );
 
+void RestoreLmHandlerJoin( void );
+
 /*!
  * Check whether the Device is joined to the network
  *

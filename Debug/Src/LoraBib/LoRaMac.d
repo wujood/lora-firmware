@@ -7,7 +7,7 @@ Src/LoraBib/LoRaMac.o: ../Src/LoraBib/LoRaMac.c \
  ../Src/LoraBib/secure-element.h ../Src/LoraBib/LoRaMacTest.h \
  ../Src/LoraBib/LoRaMacConfirmQueue.h ../Src/LoraBib/LoRaMacParser.h \
  ../Src/LoraBib/LoRaMacFCntHandler.h ../Src/LoraBib/LoRaMacCommands.h \
- ../Src/LoraBib/LoRaMacAdr.h
+ ../Src/LoraBib/LoRaMacAdr.h ../Src/LoraBib/rtc-board.h
 
 ../Src/LoraBib/utilities.h:
 
@@ -44,3 +44,5 @@ Src/LoraBib/LoRaMac.o: ../Src/LoraBib/LoRaMac.c \
 ../Src/LoraBib/LoRaMacCommands.h:
 
 ../Src/LoraBib/LoRaMacAdr.h:
+
+../Src/LoraBib/rtc-board.h:

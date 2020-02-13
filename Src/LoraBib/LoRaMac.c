@@ -45,6 +45,7 @@
 #include "LoRaMacCommands.h"
 #include "LoRaMacAdr.h"
 
+#include "rtc-board.h"
 #include "LoRaMac.h"
 
 /*!
@@ -91,6 +92,8 @@ enum eLoRaMacState
     LORAMAC_TX_CONFIG     = 0x00000040,
     LORAMAC_RX_ABORT      = 0x00000080,
 };
+
+
 
 /*
  * Request permission state
@@ -816,6 +819,12 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     RxDoneParams.Rssi = rssi;
     RxDoneParams.Snr = snr;
 
+    RtcBackupWrite(RxDoneParams.LastRxDone, LastRxDone);
+//    RtcBackupWrite(RxDoneParams.Payload, Payload);
+    RtcBackupWrite(RxDoneParams.Rssi, Rssi);
+    RtcBackupWrite(RxDoneParams.Snr, Snr);
+
+
     LoRaMacRadioEvents.Events.RxDone = 1;
 
     if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
@@ -1020,13 +1029,21 @@ static void ProcessRadioRxDone( void )
                 MacCtx.NvmCtx->NetID |= ( ( uint32_t ) macMsgJoinAccept.NetID[1] << 8 );
                 MacCtx.NvmCtx->NetID |= ( ( uint32_t ) macMsgJoinAccept.NetID[2] << 16 );
 
+//                RtcBackupWrite(  MacCtx.NvmCtx->NetID , NetID );
+
                 // Device Address
                 MacCtx.NvmCtx->DevAddr = macMsgJoinAccept.DevAddr;
+
+//                RtcBackupWrite(  MacCtx.NvmCtx->DevAddr , DevAddr );
 
                 // DLSettings
                 MacCtx.NvmCtx->MacParams.Rx1DrOffset = macMsgJoinAccept.DLSettings.Bits.RX1DRoffset;
                 MacCtx.NvmCtx->MacParams.Rx2Channel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
                 MacCtx.NvmCtx->MacParams.RxCChannel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+
+//                RtcBackupWrite(  MacCtx.NvmCtx->MacParams.Rx1DrOffset , Rx1DrOffset );
+//                RtcBackupWrite(  MacCtx.NvmCtx->MacParams.Rx2Channel.Datarate , Rx2Channel_Datarate );
+//                RtcBackupWrite(  MacCtx.NvmCtx->MacParams.RxCChannel.Datarate , RxCChannel_Datarate );
 
                 // RxDelay
                 MacCtx.NvmCtx->MacParams.ReceiveDelay1 = macMsgJoinAccept.RxDelay;
@@ -1036,6 +1053,9 @@ static void ProcessRadioRxDone( void )
                 }
                 MacCtx.NvmCtx->MacParams.ReceiveDelay1 *= 1000;
                 MacCtx.NvmCtx->MacParams.ReceiveDelay2 = MacCtx.NvmCtx->MacParams.ReceiveDelay1 + 1000;
+
+//                RtcBackupWrite(  MacCtx.NvmCtx->MacParams.ReceiveDelay1 , ReceiveDelay1 );
+//                RtcBackupWrite(  MacCtx.NvmCtx->MacParams.ReceiveDelay2 , ReceiveDelay2 );
 
                 MacCtx.NvmCtx->Version.Fields.Minor = 0;
 
@@ -1047,6 +1067,7 @@ static void ProcessRadioRxDone( void )
                 RegionApplyCFList( MacCtx.NvmCtx->Region, &applyCFList );
 
                 MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_OTAA;
+                RtcBackupWrite(  MacCtx.NvmCtx->NetworkActivation , NetworkActivation );
 
                 // MLME handling
                 if( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true )
@@ -2436,7 +2457,7 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
             {
                 return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
             }
-
+            fCntUp = RtcBackupRead(FCntUp) + 1;
             macCryptoStatus = LoRaMacCryptoSecureMessage( fCntUp, txDr, txCh, &MacCtx.TxMsg.Message.Data );
             if( LORAMAC_CRYPTO_SUCCESS != macCryptoStatus )
             {
@@ -2617,6 +2638,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
             {
                 return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
             }
+            fCntUp = RtcBackupRead(FCntUp) + 1;
             MacCtx.TxMsg.Message.Data.FHDR.FCnt = ( uint16_t ) fCntUp;
 
             // Reset confirm parameters
@@ -2953,10 +2975,15 @@ static bool StopRetransmission( void )
     {
         return false;
     }
+
+    fCntUp = RtcBackupRead(FCntUp) +1;
+
     if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacSetFCntUp( ( fCntUp ) ) )
     {
         return false;
     }
+
+    RtcBackupWrite(fCntUp, FCntUp);
 
     if( MacCtx.MacFlags.Bits.McpsInd == 0 )
     {   // Maximum repetitions without downlink. Increase ADR Ack counter.
@@ -4653,4 +4680,229 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
     {
         MacCtx.NvmCtx->DutyCycleOn = enable;
     }
+}
+void RestoreRxDone( void )
+{
+	RxDoneParams.LastRxDone = RtcBackupRead(LastRxDone);
+	//    RtcBackupRead(RxDoneParams.Payload, Payload);
+	RxDoneParams.Size = 33;
+	RxDoneParams.Rssi =   RtcBackupRead(Rssi);
+	RxDoneParams.Snr = RtcBackupRead(Snr);
+}
+
+void RestoreMacCtx( void )
+{
+//	LoRaMacHeader_t macHdr;
+	ApplyCFListParams_t applyCFList;
+//	GetPhyParams_t getPhy;
+//	PhyParam_t phyParam;
+	LoRaMacCryptoStatus_t macCryptoStatus = LORAMAC_CRYPTO_ERROR;
+
+//	LoRaMacMessageData_t macMsgData;
+	LoRaMacMessageJoinAccept_t macMsgJoinAccept;
+	uint8_t *payload = RxDoneParams.Payload;
+	uint16_t size = RxDoneParams.Size;
+	int16_t rssi = RxDoneParams.Rssi;
+	int8_t snr = RxDoneParams.Snr;
+
+//	uint8_t pktHeaderLen = 0;
+
+//	uint32_t downLinkCounter = 0;
+//	uint32_t address = MacCtx.NvmCtx->DevAddr;
+//	uint8_t multicast = 0;
+//	AddressIdentifier_t addrID = UNICAST_DEV_ADDR;
+//	LoRaMacFCntHandlerStatus_t fCntHandlerStatus;
+//	FCntIdentifier_t fCntID;
+
+	MacCtx.McpsConfirm.AckReceived = false;
+	MacCtx.McpsIndication.Rssi = rssi;
+	MacCtx.McpsIndication.Snr = snr;
+	MacCtx.McpsIndication.RxSlot = MacCtx.RxSlot;
+	MacCtx.McpsIndication.Port = 0;
+	MacCtx.McpsIndication.Multicast = 0;
+	MacCtx.McpsIndication.FramePending = 0;
+	MacCtx.McpsIndication.Buffer = NULL;
+	MacCtx.McpsIndication.BufferSize = 0;
+	MacCtx.McpsIndication.RxData = false;
+	MacCtx.McpsIndication.AckReceived = false;
+	MacCtx.McpsIndication.DownLinkCounter = 0;
+	MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
+	MacCtx.McpsIndication.DevAddress = 0;
+	MacCtx.McpsIndication.DeviceTimeAnsReceived = false;
+
+	// This function must be called even if we are not in class b mode yet.
+	if( LoRaMacClassBRxBeacon( payload, size ) == true )
+	{
+		MacCtx.MlmeIndication.BeaconInfo.Rssi = rssi;
+		MacCtx.MlmeIndication.BeaconInfo.Snr = snr;
+		return;
+	}
+
+//	macHdr.Value = payload[pktHeaderLen++];
+
+//	macMsgJoinAccept.Buffer = payload;
+	macMsgJoinAccept.BufSize = size;
+
+	macCryptoStatus = LoRaMacCryptoRestoreJoinAccept( JOIN_REQ, MacCtx.JoinEui, &macMsgJoinAccept );
+
+	if( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus )
+	{
+		// Network ID
+		MacCtx.NvmCtx->NetID = ( uint32_t ) macMsgJoinAccept.NetID[0];
+		MacCtx.NvmCtx->NetID |= ( ( uint32_t ) macMsgJoinAccept.NetID[1] << 8 );
+		MacCtx.NvmCtx->NetID |= ( ( uint32_t ) macMsgJoinAccept.NetID[2] << 16 );
+
+		// Device Address
+		MacCtx.NvmCtx->DevAddr = macMsgJoinAccept.DevAddr;
+
+		// DLSettings
+		MacCtx.NvmCtx->MacParams.Rx1DrOffset = macMsgJoinAccept.DLSettings.Bits.RX1DRoffset;
+		MacCtx.NvmCtx->MacParams.Rx2Channel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+		MacCtx.NvmCtx->MacParams.RxCChannel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+
+		// RxDelay
+		MacCtx.NvmCtx->MacParams.ReceiveDelay1 = macMsgJoinAccept.RxDelay;
+		if( MacCtx.NvmCtx->MacParams.ReceiveDelay1 == 0 )
+		{
+			MacCtx.NvmCtx->MacParams.ReceiveDelay1 = 1;
+		}
+		MacCtx.NvmCtx->MacParams.ReceiveDelay1 *= 1000;
+		MacCtx.NvmCtx->MacParams.ReceiveDelay2 = MacCtx.NvmCtx->MacParams.ReceiveDelay1 + 1000;
+
+		MacCtx.NvmCtx->Version.Fields.Minor = 0;
+
+		// Apply CF list
+		applyCFList.Payload = macMsgJoinAccept.CFList;
+		// Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC
+		applyCFList.Size = size - 17;
+
+		RegionApplyCFList( MacCtx.NvmCtx->Region, &applyCFList );
+
+		// MLME handling
+		if( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true )
+		{
+			LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_JOIN );
+		}
+		}
+	else
+	{
+		// MLME handling
+		if( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true )
+		{
+			LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL, MLME_JOIN );
+		}
+	}
+	// Verify if we need to disable the AckTimeoutTimer
+	if( MacCtx.NodeAckRequested == true )
+	{
+		if( MacCtx.McpsConfirm.AckReceived == true )
+		{
+			OnAckTimeoutTimerEvent( NULL );
+		}
+	}
+	else
+	{
+		if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
+		{
+			OnAckTimeoutTimerEvent( NULL );
+		}
+	}
+	MacCtx.MacFlags.Bits.MacDone = 1;
+}
+
+
+void DeleteBackup(void)
+{
+	RtcBackupWrite(0x00, MHDRValue );
+	RtcBackupWrite(0x00, JoinNonce );
+	RtcBackupWrite(0x00, NetID );
+	RtcBackupWrite(0x00, DevAddr );
+	RtcBackupWrite(0x00, DLSettings );
+	RtcBackupWrite(0x00, RxDelay );
+	RtcBackupWrite(0x00, MIC );
+	RtcBackupWrite(0x00, FCntUp  );
+	RtcBackupWrite(0x00, DevNonce  );
+	RtcBackupWrite(0x00, NetworkActivation);
+	RtcBackupWrite(0x00, CFList1  );
+	RtcBackupWrite(0x00, CFList2  );
+	RtcBackupWrite(0x00, CFList3 );
+	RtcBackupWrite(0x00, CFList4  );
+	RtcBackupWrite(0x00, LastRxDone  );
+	RtcBackupWrite(0x00, Payload   );
+	RtcBackupWrite(0x00, Size  );
+	RtcBackupWrite(0x00, Rssi  );
+	RtcBackupWrite(0x00, Snr  );
+}
+
+uint8_t GetNetworkActivation (void){
+
+	MacCtx.NvmCtx->NetworkActivation = RtcBackupRead(  NetworkActivation );
+
+	if (MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_OTAA){
+		return 1;
+	}
+	else return 0;
+}
+
+LoRaMacStatus_t RestoreLoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
+{
+    LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
+    MlmeConfirmQueue_t queueElement;
+//    uint8_t macCmdPayload[2] = { 0x00, 0x00 };
+
+    if( mlmeRequest == NULL )
+    {
+        return LORAMAC_STATUS_PARAMETER_INVALID;
+    }
+    if( LoRaMacConfirmQueueGetCnt( ) == 0 )
+    {
+        memset1( ( uint8_t* ) &MacCtx.MlmeConfirm, 0, sizeof( MacCtx.MlmeConfirm ) );
+    }
+    MacCtx.MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+
+    MacCtx.MacFlags.Bits.MlmeReq = 1;
+    queueElement.Request = mlmeRequest->Type;
+    queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+    queueElement.RestrictCommonReadyToHandle = false;
+
+
+    if( ( mlmeRequest->Req.Join.DevEui == NULL ) ||
+    		( mlmeRequest->Req.Join.JoinEui == NULL ) )
+    {
+    	return LORAMAC_STATUS_PARAMETER_INVALID;
+    }
+
+//    MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_NONE;
+
+//    ResetMacParameters( );
+
+    MacCtx.DevEui = mlmeRequest->Req.Join.DevEui;
+    MacCtx.JoinEui = mlmeRequest->Req.Join.JoinEui;
+
+    MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR );
+
+    queueElement.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+
+//    status = SendReJoinReq( JOIN_REQ );
+
+    if( status != LORAMAC_STATUS_OK )
+    {
+    	// Revert back the previous datarate ( mainly used for US915 like regions )
+    	MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR_RESTORE );
+    }
+
+    if( status != LORAMAC_STATUS_OK )
+    {
+    	if( LoRaMacConfirmQueueGetCnt( ) == 0 )
+    	{
+    		MacCtx.NodeAckRequested = false;
+    		MacCtx.MacFlags.Bits.MlmeReq = 0;
+    	}
+    }
+    else
+    {
+    	LoRaMacConfirmQueueAdd( &queueElement );
+        EventMacNvmCtxChanged( );
+    }
+    return status;
 }

@@ -8,6 +8,7 @@
 #include "sensors.h"
 #include "vl53l0x.h"
 #include "i2c-board.h"
+#include "delay.h"
 //#include "required_version.h"
 //#include "get_nucleo_serial_comm.h"
 //#include <windows.h>
@@ -107,7 +108,7 @@ int8_t stream_bme280_data_forced_mode(struct bme280_dev *dev, struct bme280_data
 {
     int8_t rslt;
     uint8_t settings_sel;
-    uint16_t data[2];
+
 //    struct bme280_data comp_data;
     /* Recommended mode of operation: Indoor navigation */
     dev->settings.osr_h = BME280_OVERSAMPLING_1X;
@@ -163,7 +164,7 @@ int stream_vl53l0x_data_forced_mode(void){
 	for (i=0; i<5; i++) // read values 20 times a second for 1 minute
 	{
 		iDistance = tofReadDistance(&vl53l0x);
-		user_delay_ms(50); // 50ms
+		DelayMs(50); // 50ms
 	}
 	return iDistance;
 }

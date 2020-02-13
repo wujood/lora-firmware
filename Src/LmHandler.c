@@ -430,11 +430,29 @@ static void LmHandlerJoinRequest( bool isOtaa )
     }
 }
 
+static void RestoreLmHandlerJoinRequest( void )
+{
+	MlmeReq_t mlmeReq;
+
+	mlmeReq.Type = MLME_JOIN;
+	mlmeReq.Req.Join.DevEui = CommissioningParams.DevEui;
+	mlmeReq.Req.Join.JoinEui = CommissioningParams.JoinEui;
+	mlmeReq.Req.Join.Datarate = LmHandlerParams->TxDatarate;
+	// Update commissioning parameters activation type variable.
+	CommissioningParams.IsOtaaActivation = true;
+
+	RestoreLoRaMacMlmeRequest( &mlmeReq );
+}
+
 void LmHandlerJoin( void )
 {
     LmHandlerJoinRequest( CommissioningParams.IsOtaaActivation );
 }
 
+void RestoreLmHandlerJoin( void )
+{
+	RestoreLmHandlerJoinRequest( );
+}
 LmHandlerFlagStatus_t LmHandlerJoinStatus( void )
 {
     MibRequestConfirm_t mibReq;

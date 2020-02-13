@@ -41,6 +41,9 @@
 #include "LoRaMacSerializer.h"
 #include "LoRaMacCrypto.h"
 
+#include "rtc-board.h"
+
+
 /*!
  * Indicates if LoRaWAN 1.1.x crypto scheme is enabled
  */
@@ -1007,6 +1010,8 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     CryptoCtx.EventCryptoNvmCtxChanged( );
     macMsg->DevNonce = CryptoCtx.NvmCtx->DevNonce;
 
+    RtcBackupWrite(  CryptoCtx.NvmCtx->DevNonce , DevNonce );
+
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     // Derive lifetime session keys
     if( DeriveLifeTimeSessionKey( J_S_INT_KEY, macMsg->DevEUI ) != LORAMAC_CRYPTO_SUCCESS )
@@ -1585,6 +1590,111 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
+
+    return LORAMAC_CRYPTO_SUCCESS;
+}
+
+
+
+LoRaMacCryptoStatus_t LoRaMacCryptoRestoreJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEUI, LoRaMacMessageJoinAccept_t* macMsg )
+{
+    if( ( macMsg == 0 ) || ( joinEUI == 0 ) )
+    {
+        return LORAMAC_CRYPTO_ERROR_NPE;
+    }
+
+    LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
+    KeyIdentifier_t micComputationKeyID;
+    KeyIdentifier_t encryptionKeyID;
+    uint8_t micComputationOffset = 0;
+
+    CryptoCtx.NvmCtx->DevNonce = RtcBackupRead( DevNonce );
+
+    // Determine decryption key and DevNonce for key derivation
+    if( joinReqType == JOIN_REQ )
+    {
+        encryptionKeyID = NWK_KEY;
+        micComputationOffset = CRYPTO_MIC_COMPUTATION_OFFSET;
+    }
+
+    // Decrypt header, skip MHDR
+    uint8_t procBuffer[CRYPTO_MAXMESSAGE_SIZE + CRYPTO_MIC_COMPUTATION_OFFSET];
+    memset1( procBuffer, 0, ( macMsg->BufSize + micComputationOffset ) );
+
+    if( SecureElementAesEncrypt( macMsg->Buffer + LORAMAC_MHDR_FIELD_SIZE, ( macMsg->BufSize - LORAMAC_MHDR_FIELD_SIZE ), encryptionKeyID, ( procBuffer + micComputationOffset ) ) != SECURE_ELEMENT_SUCCESS )
+    {
+        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
+    }
+    // Copy the result to an offset location to keep space for additional information which have to be added in case of 1.1 and later
+    memcpy1( macMsg->Buffer + LORAMAC_MHDR_FIELD_SIZE, ( procBuffer + micComputationOffset ), ( macMsg->BufSize - LORAMAC_MHDR_FIELD_SIZE ) );
+
+    // Parse the message
+    if( LoRaMacRestoreJoinAccept( macMsg ) != LORAMAC_PARSER_SUCCESS )
+    {
+        return LORAMAC_CRYPTO_ERROR_PARSER;
+    }
+
+    // Is it a LoRaWAN 1.1.0 or later ?
+    if( macMsg->DLSettings.Bits.OptNeg == 1 )
+    {
+        CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 1;
+        micComputationKeyID = J_S_INT_KEY;
+    }
+    else
+    {
+        CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 0;
+        micComputationKeyID = NWK_KEY;
+    }
+
+
+    // For legacy mode :
+    //   cmac = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList | CFListType)
+    if( SecureElementVerifyAesCmac( macMsg->Buffer, ( macMsg->BufSize - LORAMAC_MIC_FIELD_SIZE ), macMsg->MIC, micComputationKeyID ) != SECURE_ELEMENT_SUCCESS )
+    {
+    	return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
+    }
+
+
+
+    // prior LoRaWAN 1.1.0
+    retval = LoRaMacCryptoDeriveMcRootKey( GEN_APP_KEY );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+    	return retval;
+    }
+
+    retval = LoRaMacCryptoDeriveMcKEKey( MC_ROOT_KEY );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+    	return retval;
+    }
+
+    retval = DeriveSessionKey10x( APP_S_KEY, macMsg->JoinNonce, macMsg->NetID, ( uint8_t* ) &CryptoCtx.NvmCtx->DevNonce );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+    	return retval;
+    }
+
+    retval = DeriveSessionKey10x( NWK_S_ENC_KEY, macMsg->JoinNonce, macMsg->NetID, ( uint8_t* ) &CryptoCtx.NvmCtx->DevNonce );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+    	return retval;
+    }
+
+    retval = DeriveSessionKey10x( F_NWK_S_INT_KEY, macMsg->JoinNonce, macMsg->NetID, ( uint8_t* ) &CryptoCtx.NvmCtx->DevNonce );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+    	return retval;
+    }
+
+    retval = DeriveSessionKey10x( S_NWK_S_INT_KEY, macMsg->JoinNonce, macMsg->NetID, ( uint8_t* ) &CryptoCtx.NvmCtx->DevNonce );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+    	return retval;
+    }
+
+
+
 
     return LORAMAC_CRYPTO_SUCCESS;
 }

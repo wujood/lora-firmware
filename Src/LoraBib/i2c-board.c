@@ -24,6 +24,7 @@
 #include "utilities.h"
 #include "board-config.h"
 #include "i2c-board.h"
+#include <string.h>
 
 /*!
  *  The value of the maximal timeout for I2C waiting loops

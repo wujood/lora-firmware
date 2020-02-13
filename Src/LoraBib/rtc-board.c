@@ -35,7 +35,8 @@
 #include "rtc-board.h"
 
 // MCU Wake Up Time
-#define MIN_ALARM_DELAY                             3 // in ticks
+#define MIN_ALARM_DELAY                             	3   // in ticks Sleep Mode
+#define MIN_ALARM_DELAY_SD                             	100000 // in ticks Shutdown Mode
 
 // sub-second number of bits
 #define N_PREDIV_S                                  10
@@ -296,6 +297,16 @@ void RtcSetAlarm( uint32_t timeout )
     else
     {
         LpmSetStopMode( LPM_RTC_ID, LPM_DISABLE );
+    }
+
+    if( ( int64_t )( MIN_ALARM_DELAY_SD + McuWakeUpTimeCal ) < ( int64_t )( timeout - RtcGetTimerElapsedTime( ) ) )
+    {
+    	LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
+//    	LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
+    }
+    else
+    {
+    	LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
     }
 
     // In case stop mode is required
@@ -577,6 +588,112 @@ void RtcBkupRead( uint32_t *data0, uint32_t *data1 )
 {
   *data0 = HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR0 );
   *data1 = HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR1 );
+}
+
+void RtcBackupWrite( uint32_t data, uint32_t data_type){
+	switch (data_type){
+	case 2:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR2, data );
+		break;
+	case 3:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR3, data );
+		break;
+	case 4:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR4, data );
+		break;
+	case 5:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR5, data );
+		break;
+	case 6:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR6, data );
+		break;
+	case 7:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR7, data );
+		break;
+	case 8:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR8, data );
+		break;
+	case 9:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR9, data );
+		break;
+	case 10:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR10, data );
+		break;
+	case 11:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR11, data );
+		break;
+	case 12:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR12, data );
+		break;
+	case 13:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR13, data );
+		break;
+	case 14:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR14, data );
+		break;
+	case 15:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR15, data );
+		break;
+	case 16:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR16, data );
+		break;
+	case 17:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR17, data );
+		break;
+	case 18:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR18, data );
+		break;
+	case 19:
+		HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR19, data );
+		break;
+	default:
+	    break;
+	}
+
+
+}
+
+uint32_t RtcBackupRead( uint32_t data_type){
+	switch (data_type){
+		case 2:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR2 ));
+		case 3:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR3 ));
+		case 4:
+			return(  HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR4 ));
+		case 5:
+			return(  HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR5) );
+		case 6:
+			return(  HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR6 ));
+		case 7:
+			return(  HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR7) );
+		case 8:
+			return(  HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR8 ));
+		case 9:
+			return(  HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR9 ));
+		case 10:
+			return(  HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR10) );
+		case 11:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR11 ));
+		case 12:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR12) );
+		case 13:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR13 ));
+		case 14:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR14 ));
+		case 15:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR15 ));
+		case 16:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR16 ));
+		case 17:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR17 ));
+		case 18:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR18 ));
+		case 19:
+			return( HAL_RTCEx_BKUPRead( &RtcHandle, RTC_BKP_DR19 ));
+		default:
+			return 0x0;
+	}
 }
 
 void RtcProcess( void )

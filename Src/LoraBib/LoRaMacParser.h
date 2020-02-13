@@ -63,6 +63,28 @@ typedef enum eLoRaMacParserStatus
     LORAMAC_PARSER_ERROR,
 }LoRaMacParserStatus_t;
 
+enum Backups
+{
+	MHDRValue = 2,
+	JoinNonce = 3,
+	NetID  	= 4,
+	DevAddr = 5,
+	DLSettings = 6,
+	RxDelay = 7,
+	MIC = 8,
+	FCntUp = 9,
+	DevNonce = 10,
+	NetworkActivation = 11,
+	CFList1 = 12,
+	CFList2 = 13,
+	CFList3 = 14,
+	CFList4 = 15,
+	LastRxDone = 16,
+	Payload = 17,
+	Size = 18,
+	Rssi = 19,
+	Snr = 20,
+};
 
 /*!
  * Parse a serialized join-accept message and fills the structured object.
@@ -80,6 +102,8 @@ LoRaMacParserStatus_t LoRaMacParserJoinAccept( LoRaMacMessageJoinAccept_t *macMs
  */
 LoRaMacParserStatus_t LoRaMacParserData( LoRaMacMessageData_t *macMsg );
 
+
+LoRaMacParserStatus_t LoRaMacRestoreJoinAccept( LoRaMacMessageJoinAccept_t* macMsg );
 /*! \} addtogroup LORAMAC */
 
 #endif // __LORAMAC_PARSER_H__

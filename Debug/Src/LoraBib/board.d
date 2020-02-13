@@ -80,10 +80,10 @@ Src/LoraBib/board.o: ../Src/LoraBib/board.c \
  ../Src/LoraBib/board-config.h ../Src/LoraBib/lpm-board.h \
  ../Src/LoraBib/rtc-board.h ../Src/LoraBib/sensors.h \
  ../Src/LoraBib/bme280.h ../Src/LoraBib/bme280_defs.h \
- ../Src/LoraBib/vl53l0x.h ../Src/LoraBib/sx1276-board.h \
- ../Src/LoraBib/sx1276.h ../Src/LoraBib/radio.h \
- ../Src/LoraBib/sx1276Regs-Fsk.h ../Src/LoraBib/sx1276Regs-LoRa.h \
- ../Src/LoraBib/board.h
+ ../Src/LoraBib/vl53l0x.h ../Src/LoraBib/delay.h \
+ ../Src/LoraBib/sx1276-board.h ../Src/LoraBib/sx1276.h \
+ ../Src/LoraBib/radio.h ../Src/LoraBib/sx1276Regs-Fsk.h \
+ ../Src/LoraBib/sx1276Regs-LoRa.h ../Src/LoraBib/board.h
 
 C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h:
 
@@ -266,6 +266,8 @@ C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_h
 ../Src/LoraBib/bme280_defs.h:
 
 ../Src/LoraBib/vl53l0x.h:
+
+../Src/LoraBib/delay.h:
 
 ../Src/LoraBib/sx1276-board.h:
 
