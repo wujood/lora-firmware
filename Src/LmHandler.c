@@ -27,7 +27,7 @@
 #include <stdbool.h>
 #include "LoraBib/utilities.h"
 #include "LoraBib/timer.h"
-#include "Commissioning.h"
+#include "LoraBib/Commissioning.h"
 #include "NvmCtxMgmt.h"
 #include "LmHandler.h"
 #include "LmhPackage.h"

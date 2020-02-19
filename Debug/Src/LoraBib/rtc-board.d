@@ -77,7 +77,7 @@ Src/LoraBib/rtc-board.o: ../Src/LoraBib/rtc-board.c \
  ../Src/LoraBib/timer.h ../Src/LoraBib/systime.h ../Src/LoraBib/gpio.h \
  ../Src/LoraBib/pinName-board.h ../Src/LoraBib/pinName-ioe.h \
  ../Src/LoraBib/lpm-board.h ../Src/LoraBib/board-config.h \
- ../Src/LoraBib/rtc-board.h
+ ../Src/LoraBib/rtc-board.h ../Src/LoraBib/Commissioning.h
 
 C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h:
 
@@ -248,3 +248,5 @@ C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_h
 ../Src/LoraBib/board-config.h:
 
 ../Src/LoraBib/rtc-board.h:
+
+../Src/LoraBib/Commissioning.h:

@@ -150,6 +150,7 @@
 "Src/LoraBib/gps.o"
 "Src/LoraBib/i2c-board.o"
 "Src/LoraBib/i2c.o"
+"Src/LoraBib/iwdg-board.o"
 "Src/LoraBib/lpm-board.o"
 "Src/LoraBib/mag3110.o"
 "Src/LoraBib/mma8451.o"

@@ -33,6 +33,8 @@
 #include "rtc-board.h"
 #include "sensors.h"
 #include "delay.h"
+#include "Commissioning.h"
+#include "iwdg-board.h"
 
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     #include "sx126x-board.h"
@@ -183,15 +185,21 @@ void BoardInitMcu( void )
         InitFlashMemoryOperations( );
 
         // LEDs
-        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-        GpioInit( &TestSD, PC_8, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &TestSD2, PC_13, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+//        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+//        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+//
+//        GpioInit( &TestSD, PC_8, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &TestSD2, PC_8, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioWrite( &TestSD2,1);
 
         SystemClockConfig( );
 
+        IWDG_Init();
+
+//        if(LP_RUN_SHUTDOWN_MODE)
+//        {
+        	HAL_PWREx_EnableLowPowerRunMode();
+//        }
         UsbIsConnected = false;
 
         FifoInit( &Uart2.FifoTx, Uart2TxBuffer, UART2_FIFO_TX_SIZE );
@@ -206,8 +214,10 @@ void BoardInitMcu( void )
         if( GetBoardPowerSource( ) == BATTERY_POWER )
         {
             // Disables OFF mode - Enables lowest power mode (STOP)
-        	LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
-//            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
+        	if (LP_RUN_SHUTDOWN_MODE)
+        		LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
+        	else
+        		LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
         }
     }
     else
@@ -312,7 +322,7 @@ void SystemClockConfig( void )
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.MSIState            = RCC_MSI_ON;
     RCC_OscInitStruct.LSEState            = RCC_LSE_ON;
-    RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_6;
+    RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_5;
     RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_MSI;

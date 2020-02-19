@@ -45,6 +45,7 @@ C_SRCS += \
 ../Src/LoraBib/gps.c \
 ../Src/LoraBib/i2c-board.c \
 ../Src/LoraBib/i2c.c \
+../Src/LoraBib/iwdg-board.c \
 ../Src/LoraBib/lpm-board.c \
 ../Src/LoraBib/mag3110.c \
 ../Src/LoraBib/mma8451.c \
@@ -108,6 +109,7 @@ OBJS += \
 ./Src/LoraBib/gps.o \
 ./Src/LoraBib/i2c-board.o \
 ./Src/LoraBib/i2c.o \
+./Src/LoraBib/iwdg-board.o \
 ./Src/LoraBib/lpm-board.o \
 ./Src/LoraBib/mag3110.o \
 ./Src/LoraBib/mma8451.o \
@@ -171,6 +173,7 @@ C_DEPS += \
 ./Src/LoraBib/gps.d \
 ./Src/LoraBib/i2c-board.d \
 ./Src/LoraBib/i2c.d \
+./Src/LoraBib/iwdg-board.d \
 ./Src/LoraBib/lpm-board.d \
 ./Src/LoraBib/mag3110.d \
 ./Src/LoraBib/mma8451.d \

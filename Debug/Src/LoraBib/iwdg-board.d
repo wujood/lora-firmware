@@ -1,4 +1,4 @@
-Src/LoraBib/board.o: ../Src/LoraBib/board.c \
+Src/LoraBib/iwdg-board.o: ../Src/LoraBib/iwdg-board.c \
  C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h \
  C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l476xx.h \
  C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Include/core_cm4.h \
@@ -73,18 +73,8 @@ Src/LoraBib/board.o: ../Src/LoraBib/board.c \
  C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_usb.h \
  C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h \
  C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_hcd.h \
- ../Src/LoraBib/utilities.h ../Src/LoraBib/gpio.h \
- ../Src/LoraBib/pinName-board.h ../Src/LoraBib/pinName-ioe.h \
- ../Src/LoraBib/adc.h ../Src/LoraBib/spi.h ../Src/LoraBib/i2c.h \
- ../Src/LoraBib/uart.h ../Src/LoraBib/fifo.h ../Src/LoraBib/timer.h \
- ../Src/LoraBib/board-config.h ../Src/LoraBib/lpm-board.h \
- ../Src/LoraBib/rtc-board.h ../Src/LoraBib/sensors.h \
- ../Src/LoraBib/bme280.h ../Src/LoraBib/bme280_defs.h \
- ../Src/LoraBib/vl53l0x.h ../Src/LoraBib/delay.h \
- ../Src/LoraBib/Commissioning.h ../Src/LoraBib/iwdg-board.h \
- ../Src/LoraBib/sx1276-board.h ../Src/LoraBib/sx1276.h \
- ../Src/LoraBib/radio.h ../Src/LoraBib/sx1276Regs-Fsk.h \
- ../Src/LoraBib/sx1276Regs-LoRa.h ../Src/LoraBib/board.h
+ ../Src/LoraBib/utilities.h ../Src/LoraBib/board-config.h \
+ ../Src/LoraBib/iwdg-board.h
 
 C:/Users/Matze/workspace/NewFolder2/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h:
 
@@ -236,52 +226,6 @@ C:/Users/Matze/workspace/NewFolder2/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_h
 
 ../Src/LoraBib/utilities.h:
 
-../Src/LoraBib/gpio.h:
-
-../Src/LoraBib/pinName-board.h:
-
-../Src/LoraBib/pinName-ioe.h:
-
-../Src/LoraBib/adc.h:
-
-../Src/LoraBib/spi.h:
-
-../Src/LoraBib/i2c.h:
-
-../Src/LoraBib/uart.h:
-
-../Src/LoraBib/fifo.h:
-
-../Src/LoraBib/timer.h:
-
 ../Src/LoraBib/board-config.h:
 
-../Src/LoraBib/lpm-board.h:
-
-../Src/LoraBib/rtc-board.h:
-
-../Src/LoraBib/sensors.h:
-
-../Src/LoraBib/bme280.h:
-
-../Src/LoraBib/bme280_defs.h:
-
-../Src/LoraBib/vl53l0x.h:
-
-../Src/LoraBib/delay.h:
-
-../Src/LoraBib/Commissioning.h:
-
 ../Src/LoraBib/iwdg-board.h:
-
-../Src/LoraBib/sx1276-board.h:
-
-../Src/LoraBib/sx1276.h:
-
-../Src/LoraBib/radio.h:
-
-../Src/LoraBib/sx1276Regs-Fsk.h:
-
-../Src/LoraBib/sx1276Regs-LoRa.h:
-
-../Src/LoraBib/board.h:

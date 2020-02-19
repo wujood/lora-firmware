@@ -61,6 +61,12 @@
  */
 #define OVER_THE_AIR_ACTIVATION                            1
 
+
+/*!
+ * When set to 1 the application uses the Low Power Run Mode and the Shutdown Mode
+ * When set to 0 the application uses the Normal Run Mode and the Sleep Mode
+ */
+#define LP_RUN_SHUTDOWN_MODE							   1
 /*!
  * When using ABP activation the MAC layer must know in advance to which server
  * version it will be connected.

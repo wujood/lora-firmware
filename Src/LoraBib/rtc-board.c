@@ -33,6 +33,7 @@
 #include "gpio.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
+#include "Commissioning.h"
 
 // MCU Wake Up Time
 #define MIN_ALARM_DELAY                             	3   // in ticks Sleep Mode
@@ -301,8 +302,10 @@ void RtcSetAlarm( uint32_t timeout )
 
     if( ( int64_t )( MIN_ALARM_DELAY_SD + McuWakeUpTimeCal ) < ( int64_t )( timeout - RtcGetTimerElapsedTime( ) ) )
     {
-    	LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
-//    	LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
+    	if(LP_RUN_SHUTDOWN_MODE)
+    		LpmSetOffMode( LPM_APPLI_ID, LPM_ENABLE );
+    	else
+    		LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
     }
     else
     {

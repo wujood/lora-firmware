@@ -112,11 +112,10 @@ int8_t stream_bme280_data_forced_mode(struct bme280_dev *dev, struct bme280_data
 //    struct bme280_data comp_data;
     /* Recommended mode of operation: Indoor navigation */
     dev->settings.osr_h = BME280_OVERSAMPLING_1X;
-    dev->settings.osr_p = BME280_OVERSAMPLING_16X;
     dev->settings.osr_t = BME280_OVERSAMPLING_2X;
     dev->settings.filter = BME280_FILTER_COEFF_16;
 
-    settings_sel = BME280_OSR_PRESS_SEL | BME280_OSR_TEMP_SEL | BME280_OSR_HUM_SEL | BME280_FILTER_SEL;
+    settings_sel = BME280_OSR_TEMP_SEL | BME280_OSR_HUM_SEL | BME280_FILTER_SEL;
 
     rslt = bme280_set_sensor_settings(settings_sel, dev);
     if (rslt != BME280_OK)
@@ -131,14 +130,14 @@ int8_t stream_bme280_data_forced_mode(struct bme280_dev *dev, struct bme280_data
 //            fprintf(stderr, "Failed to set sensor mode (code %+d).", rslt);
     }
     /* Wait for the measurement to complete and print data @25Hz */
-    dev->delay_ms(40);
-    rslt = bme280_get_sensor_data(BME280_ALL, comp_data, dev);
+    dev->delay_ms(150);
+    rslt = bme280_get_sensor_data(BME280_TEMP|BME280_HUM, comp_data, dev);
     if (rslt != BME280_OK)
     {
 //            fprintf(stderr, "Failed to get sensor data (code %+d).", rslt);
     }
     // print_sensor_data(&comp_data);
-    dev->delay_ms(1000);
+    dev->delay_ms(200);
 
     return rslt;
 }

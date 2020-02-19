@@ -27,7 +27,8 @@
 #include "LoraBib/bme280.h"
 #include "LoraBib/sensors.h"
 #include "LoraBib/rtc-board.h"
-#include "Commissioning.h"
+#include "LoraBib/iwdg-board.h"
+#include "LoraBib/Commissioning.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
 #include "LmHandlerMsgDisplay.h"
@@ -243,18 +244,17 @@ struct bme280_data bme_data;
  */
 int main( void )
 {
-	uint32_t test = 0;
     BoardInitMcu( );
     BoardInitPeriph( );
 
-    TimerInit( &Led1Timer, OnLed1TimerEvent );
-    TimerSetValue( &Led1Timer, 25 );
-
-    TimerInit( &Led2Timer, OnLed2TimerEvent );
-    TimerSetValue( &Led2Timer, 25 );
-
-    TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
-    TimerSetValue( &LedBeaconTimer, 5000 );
+//    TimerInit( &Led1Timer, OnLed1TimerEvent );
+//    TimerSetValue( &Led1Timer, 25 );
+//
+//    TimerInit( &Led2Timer, OnLed2TimerEvent );
+//    TimerSetValue( &Led2Timer, 25 );
+//
+//    TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
+//    TimerSetValue( &LedBeaconTimer, 5000 );
 
     const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Revision = 0 };
     const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 4, .Fields.Revision = 2 };
@@ -268,17 +268,13 @@ int main( void )
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
 
-    if(0) {
-    	DeleteBackup();
-    	while(1){
+    if ( LP_RUN_SHUTDOWN_MODE && GetNetworkActivation() ){
 
-    	}
-    }
-
-    if ( GetNetworkActivation() ){
+    	CRITICAL_SECTION_BEGIN( );
     	RestoreLmHandlerJoin();
     	RestoreRxDone();
     	RestoreMacCtx();
+    	CRITICAL_SECTION_END( );
 
     }
     else
@@ -290,7 +286,10 @@ int main( void )
 
     while( 1 )
     {
-        // Processes the LoRaMac events
+
+        IWDG_Refresh();
+
+    	// Processes the LoRaMac events
         LmHandlerProcess( );
 
         // Process application uplinks management
@@ -373,7 +372,7 @@ static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
 
     // Switch LED 2 ON for each received downlink
     GpioWrite( &Led2, 1 );
-    TimerStart( &Led2Timer );
+//    TimerStart( &Led2Timer );
 }
 
 static void OnClassChange( DeviceClass_t deviceClass )
@@ -423,8 +422,11 @@ static void PrepareTxFrame( void )
     uint16_t humidity = 0xFFFF;
 	int8_t rslt = BME280_OK;
 
-    rslt = stream_bme280_data_forced_mode(&bme280,&bme_data);
+
+
     distance = stream_vl53l0x_data_forced_mode();
+
+    rslt = stream_bme280_data_forced_mode(&bme280,&bme_data);
 
 
 	if( LmHandlerIsBusy( ) == true )
@@ -432,7 +434,6 @@ static void PrepareTxFrame( void )
         return;
     }
 
-    // uint8_t channel = 0;
 
     if ((bme_data.temperature<=8500 && bme_data.temperature>=-4000) && (rslt==BME280_OK))
     	temperature = bme_data.temperature+5000;
@@ -462,7 +463,7 @@ static void PrepareTxFrame( void )
     {
         // Switch LED 1 ON
         GpioWrite( &Led1, 1 );
-        TimerStart( &Led1Timer );
+//        TimerStart( &Led1Timer );
     }
 }
 
@@ -542,7 +543,7 @@ static void OnLed2TimerEvent( void* context )
 static void OnLedBeaconTimerEvent( void* context )
 {
     GpioWrite( &Led2, 1 );
-    TimerStart( &Led2Timer );
+//    TimerStart( &Led2Timer );
 
     TimerStart( &LedBeaconTimer );
 }
