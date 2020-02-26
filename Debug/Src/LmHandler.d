@@ -1,51 +1,64 @@
-Src/LmHandler.o: ../Src/LmHandler.c ../Src/LoraBib/utilities.h \
- ../Src/LoraBib/timer.h ../Src/LoraBib/Commissioning.h \
- ../Src/NvmCtxMgmt.h ../Src/LoraBib/LoRaMac.h ../Src/LoraBib/utilities.h \
- ../Src/LoraBib/timer.h ../Src/LoraBib/systime.h ../Src/LoraBib/radio.h \
- ../Src/LoraBib/LoRaMacTypes.h ../Src/LoraBib/Region.h \
- ../Src/LoraBib/LoRaMac.h ../Src/LmHandler.h ../Src/LmHandlerTypes.h \
- ../Src/LmhpCompliance.h ../Src/LmhPackage.h ../Src/LmhpClockSync.h \
- ../Src/LmhpRemoteMcastSetup.h ../Src/LmhpFragmentation.h \
- ../Src/FragDecoder.h ../Src/LoraBib/LoRaMacTest.h
+Src/LmHandler.o: ../Src/LmHandler.c \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/utilities.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/timer.h \
+ ../Src/Commissioning.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/NvmCtxMgmt.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/systime.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Radio/radio.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h \
+ ../Src/LmHandler.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpCompliance.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpClockSync.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpRemoteMcastSetup.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpFragmentation.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/FragDecoder.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTest.h
 
-../Src/LoraBib/utilities.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/utilities.h:
 
-../Src/LoraBib/timer.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/timer.h:
 
-../Src/LoraBib/Commissioning.h:
+../Src/Commissioning.h:
 
-../Src/NvmCtxMgmt.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/NvmCtxMgmt.h:
 
-../Src/LoraBib/LoRaMac.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h:
 
-../Src/LoraBib/utilities.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/systime.h:
 
-../Src/LoraBib/timer.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Radio/radio.h:
 
-../Src/LoraBib/systime.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h:
 
-../Src/LoraBib/radio.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h:
 
-../Src/LoraBib/LoRaMacTypes.h:
-
-../Src/LoraBib/Region.h:
-
-../Src/LoraBib/LoRaMac.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h:
 
 ../Src/LmHandler.h:
 
-../Src/LmHandlerTypes.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
 
-../Src/LmhpCompliance.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpCompliance.h:
 
-../Src/LmhPackage.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
 
-../Src/LmhpClockSync.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h:
 
-../Src/LmhpRemoteMcastSetup.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h:
 
-../Src/LmhpFragmentation.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpClockSync.h:
 
-../Src/FragDecoder.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpRemoteMcastSetup.h:
 
-../Src/LoraBib/LoRaMacTest.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpFragmentation.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/FragDecoder.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTest.h:

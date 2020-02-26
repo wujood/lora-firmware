@@ -1,0 +1,27 @@
+Src/TrashLora/LoraBib/NvmCtxMgmt.o: ../Src/TrashLora/LoraBib/NvmCtxMgmt.c \
+ ../Src/TrashLora/LoraBib/NvmCtxMgmt.h ../Src/TrashLora/LoraBib/LoRaMac.h \
+ ../Src/TrashLora/LoraBib/utilities.h ../Src/TrashLora/LoraBib/timer.h \
+ ../Src/TrashLora/LoraBib/systime.h ../Src/TrashLora/LoraBib/radio.h \
+ ../Src/TrashLora/LoraBib/LoRaMacTypes.h \
+ ../Src/TrashLora/LoraBib/Region.h ../Src/TrashLora/LoraBib/eeprom.h \
+ ../Src/TrashLora/LoraBib/nvmm.h
+
+../Src/TrashLora/LoraBib/NvmCtxMgmt.h:
+
+../Src/TrashLora/LoraBib/LoRaMac.h:
+
+../Src/TrashLora/LoraBib/utilities.h:
+
+../Src/TrashLora/LoraBib/timer.h:
+
+../Src/TrashLora/LoraBib/systime.h:
+
+../Src/TrashLora/LoraBib/radio.h:
+
+../Src/TrashLora/LoraBib/LoRaMacTypes.h:
+
+../Src/TrashLora/LoraBib/Region.h:
+
+../Src/TrashLora/LoraBib/eeprom.h:
+
+../Src/TrashLora/LoraBib/nvmm.h:

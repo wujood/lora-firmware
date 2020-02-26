@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Matze/workspace/New Folder/Inc
+HeaderPath=C:/Users/Matze/workspace/TrashLORA/Inc
 HeaderFiles=stm32l4xx_it.h;stm32l4xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Matze/workspace/New Folder/Src
+SourcePath=C:/Users/Matze/workspace/TrashLORA/Src
 SourceFiles=stm32l4xx_it.c;stm32l4xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

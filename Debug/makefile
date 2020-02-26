@@ -9,7 +9,12 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include startup/subdir.mk
--include Src/LoraBib/subdir.mk
+-include Src/Sensoren/subdir.mk
+-include Src/LoraHandler/subdir.mk
+-include Src/LoRaMac/Region/subdir.mk
+-include Src/LoRaMac/Radio/subdir.mk
+-include Src/LoRaMac/subdir.mk
+-include Src/Board/subdir.mk
 -include Src/subdir.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/Legacy/subdir.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
@@ -30,13 +35,13 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: NewFolder2.elf
+all: TrashLORA.elf
 
 # Tool invocations
-NewFolder2.elf: $(OBJS) $(USER_OBJS) ../STM32L476RGTx_FLASH.ld
+TrashLORA.elf: $(OBJS) $(USER_OBJS) ../STM32L476RGTx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32L476RGTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "NewFolder2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32L476RGTx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "TrashLORA.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
@@ -48,8 +53,8 @@ clean:
 
 post-build:
 	-@echo 'Generating hex and Printing size information:'
-	arm-none-eabi-objcopy -O ihex "NewFolder2.elf" "NewFolder2.hex"
-	arm-none-eabi-size "NewFolder2.elf"
+	arm-none-eabi-objcopy -O ihex "TrashLORA.elf" "TrashLORA.hex"
+	arm-none-eabi-size "TrashLORA.elf"
 	-@echo ' '
 
 .PHONY: all clean dependents

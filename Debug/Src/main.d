@@ -1,73 +1,91 @@
-Src/main.o: ../Src/main.c ../Src/LoraBib/utilities.h \
- ../Src/LoraBib/board.h ../Src/LoraBib/utilities.h ../Src/LoraBib/gpio.h \
- ../Src/LoraBib/pinName-board.h ../Src/LoraBib/pinName-ioe.h \
- ../Src/LoraBib/bme280.h ../Src/LoraBib/bme280_defs.h \
- ../Src/LoraBib/spi.h ../Src/LoraBib/gpio.h ../Src/LoraBib/sensors.h \
- ../Src/LoraBib/bme280.h ../Src/LoraBib/vl53l0x.h ../Src/LoraBib/i2c.h \
- ../Src/LoraBib/rtc-board.h ../Src/LoraBib/timer.h \
- ../Src/LoraBib/iwdg-board.h ../Src/LoraBib/Commissioning.h \
- ../Src/LmHandler.h ../Src/LmHandlerTypes.h ../Src/LoraBib/LoRaMac.h \
- ../Src/LoraBib/systime.h ../Src/LoraBib/radio.h \
- ../Src/LoraBib/LoRaMacTypes.h ../Src/LoraBib/Region.h \
- ../Src/LoraBib/LoRaMac.h ../Src/LmhpCompliance.h ../Src/LmhPackage.h \
- ../Src/LmHandlerMsgDisplay.h ../Src/LoraBib/bme280_defs.h
+Src/main.o: ../Src/main.c \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpCompliance.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/utilities.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/timer.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/systime.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Radio/radio.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h \
+ ../Src/LmHandler.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerMsgDisplay.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LmHandler.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/bme280_defs.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/spi.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/gpio.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/pinName-board.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/pinName-ioe.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/board.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/utilities.h \
+ ../Src/Commissioning.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/gpio.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/iwdg-board.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/sensors.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/bme280.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/bme280_defs.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/vl53l0x.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/Board/i2c.h
 
-../Src/LoraBib/utilities.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpCompliance.h:
 
-../Src/LoraBib/board.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h:
 
-../Src/LoraBib/utilities.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/utilities.h:
 
-../Src/LoraBib/gpio.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/timer.h:
 
-../Src/LoraBib/pinName-board.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/systime.h:
 
-../Src/LoraBib/pinName-ioe.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Radio/radio.h:
 
-../Src/LoraBib/bme280.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h:
 
-../Src/LoraBib/bme280_defs.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h:
 
-../Src/LoraBib/spi.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
 
-../Src/LoraBib/gpio.h:
-
-../Src/LoraBib/sensors.h:
-
-../Src/LoraBib/bme280.h:
-
-../Src/LoraBib/vl53l0x.h:
-
-../Src/LoraBib/i2c.h:
-
-../Src/LoraBib/rtc-board.h:
-
-../Src/LoraBib/timer.h:
-
-../Src/LoraBib/iwdg-board.h:
-
-../Src/LoraBib/Commissioning.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h:
 
 ../Src/LmHandler.h:
 
-../Src/LmHandlerTypes.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
 
-../Src/LoraBib/LoRaMac.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerMsgDisplay.h:
 
-../Src/LoraBib/systime.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LmHandler.h:
 
-../Src/LoraBib/radio.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/bme280_defs.h:
 
-../Src/LoraBib/LoRaMacTypes.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/spi.h:
 
-../Src/LoraBib/Region.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/gpio.h:
 
-../Src/LoraBib/LoRaMac.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/pinName-board.h:
 
-../Src/LmhpCompliance.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/pinName-ioe.h:
 
-../Src/LmhPackage.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/board.h:
 
-../Src/LmHandlerMsgDisplay.h:
+C:/Users/Matze/workspace/TrashLORA/Src/Board/utilities.h:
 
-../Src/LoraBib/bme280_defs.h:
+../Src/Commissioning.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/Board/gpio.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/Board/iwdg-board.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/sensors.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/bme280.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/bme280_defs.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/vl53l0x.h:
+
+C:/Users/Matze/workspace/TrashLORA/Src/Board/i2c.h:

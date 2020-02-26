@@ -17,7 +17,12 @@ C_DEPS :=
 SUBDIRS := \
 Drivers/STM32L4xx_HAL_Driver/Src/Legacy \
 Drivers/STM32L4xx_HAL_Driver/Src \
+Src/Board \
 Src \
-Src/LoraBib \
+Src/LoRaMac \
+Src/LoRaMac/Radio \
+Src/LoRaMac/Region \
+Src/LoraHandler \
+Src/Sensoren \
 startup \
 
