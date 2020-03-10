@@ -127,4 +127,30 @@
 #define UART_TX                                     PA_2    // ok
 #define UART_RX                                     PA_3    // ok
 
+#define DMA_SPI1_TX									DMA1_Channel3
+#define DMA_SPI1_RX									DMA1_Channel2
+
+#define DMA_SPI2_TX									DMA1_Channel5
+#define DMA_SPI2_RX									DMA1_Channel4
+
+#define DMA_I2C_TX									DMA1_Channel7
+#define DMA_I2C_RX									DMA1_Channel6
+
+#define DMA_SPI1_TX_REQ								DMA_REQUEST_1
+#define DMA_SPI1_RX_REQ								DMA_REQUEST_1
+
+#define DMA_SPI2_TX_REQ								DMA_REQUEST_1
+#define DMA_SPI2_RX_REQ								DMA_REQUEST_1
+
+#define DMA_I2C_TX_REQ								DMA_REQUEST_3
+#define DMA_I2C_RX_REQ								DMA_REQUEST_3
+
+#define SPI1_DMA_TX_IRQn               				DMA1_Channel3_IRQn
+#define SPI1_DMA_RX_IRQn                 			DMA1_Channel2_IRQn
+
+#define SPI2_DMA_TX_IRQn                 			DMA1_Channel5_IRQn
+#define SPI2_DMA_RX_IRQn                 			DMA1_Channel4_IRQn
+
+#define I2C_DMA_TX_IRQn                 			DMA1_Channel7_IRQn
+#define I2C_DMA_RX_IRQn                 			DMA1_Channel6_IRQn
 #endif // __BOARD_CONFIG_H__

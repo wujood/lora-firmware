@@ -7,10 +7,9 @@ Src/main.o: ../Src/main.c \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Radio/radio.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h \
- C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LmHandlerTypes.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h \
- ../Src/LmHandler.h \
- C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ ../Src/LmHandler.h ../Src/LmHandlerTypes.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerMsgDisplay.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LmHandler.h \
  C:/Users/Matze/workspace/TrashLORA/Src/Sensoren/bme280_defs.h \
@@ -46,13 +45,13 @@ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h:
 
 C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h:
 
-C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LmHandlerTypes.h:
 
 C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h:
 
 ../Src/LmHandler.h:
 
-C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
+../Src/LmHandlerTypes.h:
 
 C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerMsgDisplay.h:
 

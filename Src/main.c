@@ -51,25 +51,15 @@
 #endif
 
 /*!
+ * Indicates if the end-device is to be connected to a private or public network
+ */
+#define LORAWAN_PUBLIC_NETWORK                             true
+
+/*!
  * LoRaWAN default end-device class
  */
 #define LORAWAN_DEFAULT_CLASS                       CLASS_A
 
-/*!
- * Defines the application data transmission duty cycle. 5s, value in [ms].
- */
-#define APP_TX_DUTYCYCLE                            180000
-
-/*!
- * Defines a random delay for application data transmission duty cycle. 1s,
- * value in [ms].
- */
-#define APP_TX_DUTYCYCLE_RND                        1000
-
-/*!
- *  Defines the first application data transmission  timer value in [ms].
- */
-#define APP_FIRST_TX                      			20000
 
 /*!
  * LoRaWAN Adaptive Data Rate
@@ -214,20 +204,26 @@ static volatile uint8_t IsMacProcessPending = 0;
 static volatile uint8_t IsTxFramePending = 0;
 
 /*!
- * LED GPIO pins objects
+ * Errors which will be sent to the Network via LoRaWAN
  */
+static uint16_t ErrorTrashMonitor;
 
-static uint16_t errorTrashMonitor;
-struct bme280_data bmeData;
-
+/*!
+ *
+ */
+struct bme280_data BmeData;
 /*!
  * Main application entry point.
  */
 int main(void)
 {
 	BoardInitMcu();
-	BoardInitPeriph();
 
+//	DeleteBackup();
+//	while(1);
+
+	// Sensors are initialized
+	BoardInitPeriph();
 	const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Revision = 0 };
 	const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 4, .Fields.Revision = 2 };
 	DisplayAppInfo("My Class A", &appVersion, &gitHubVersion);
@@ -238,31 +234,35 @@ int main(void)
 	// initialized and activated.
 	LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams);
 
-
+	// In case of OTAA and Shutdown chosen there is no new NetworkActivation necessary
 	if ( LP_RUN_SHUTDOWN_MODE && GetNetworkActivation() && OVER_THE_AIR_ACTIVATION)
 	{
 		CRITICAL_SECTION_BEGIN( );
+		//The Network Activation is restored after Shutdown mode
 		RestoreLmHandlerJoin();
 		RestoreRxDone();
 		RestoreMacCtx();
 		CRITICAL_SECTION_END( );
 		StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
-
 	}
 	else
 	{
+		// Start the Join to TTN
 		LmHandlerJoin();
 		if (OVER_THE_AIR_ACTIVATION)
 		{
+			// Start timer to transmit the first payload
 			StartJoinedProcess(LORAMAC_HANDLER_TX_ON_TIMER);
 		}
 		else
+			// Transmit the next payload
 			StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
 	}
 
 	while (1)
 	{
 
+		// Refresh the independent watchdog
 		IWDG_Refresh();
 
 		// Processes the LoRaMac events
@@ -387,13 +387,16 @@ static void PrepareTxFrame(void)
 	uint16_t temperature = 0xFFFF;
 	uint16_t humidity = 0xFFFF;
 	uint16_t distance = 0xFFFF;
+	uint16_t voltage = 0xFFFF;
 	int8_t rslt = BME280_OK;
 
-	rslt = stream_bme280_data_forced_mode(&bme280, &bmeData);
-	distance = stream_vl53l0x_data_forced_mode();
-	temperature = bmeData.temperature + 5000;
-	humidity = bmeData.humidity / 2;
 
+	rslt = StreamBme280DataForcedMode(&Bme280, &BmeData);
+	distance = StreamVl53l0xDataForcedMode();
+	temperature = BmeData.temperature + 5000;
+	humidity = BmeData.humidity / 2;
+
+	voltage = GetVBAT();
 	if (LmHandlerIsBusy() == true)
 	{
 		return;
@@ -409,9 +412,12 @@ static void PrepareTxFrame(void)
 	AppData.Buffer[3] = humidity;
 	AppData.Buffer[4] = temperature >> 8;
 	AppData.Buffer[5] = temperature;
-	AppData.Buffer[6] = errorTrashMonitor >> 8;
-	AppData.Buffer[7] = errorTrashMonitor;
-	AppData.BufferSize = 8;
+	AppData.Buffer[6] = voltage >> 8;
+	AppData.Buffer[7] = voltage;
+	AppData.Buffer[8] = ErrorTrashMonitor >> 8;
+	AppData.Buffer[9] = ErrorTrashMonitor;
+
+	AppData.BufferSize = 10;
 
 	LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE);
 
@@ -424,69 +430,69 @@ static void ErrorFrame(uint16_t distance, int8_t rslt)
 {
 
 	if (distance == 0xFFFF)
-		errorTrashMonitor |= VL53L0x_ERROR_GEN_SET;
+		ErrorTrashMonitor |= VL53L0x_ERROR_GEN_SET;
 	else
-		errorTrashMonitor &= VL53L0x_ERROR_GEN_RESET;
+		ErrorTrashMonitor &= VL53L0x_ERROR_GEN_RESET;
 
 	if (distance > VL53L0x_UPPER_LIMIT)
-		errorTrashMonitor |= VL53L0x_ERROR_UPPER_LIMIT_SET;
+		ErrorTrashMonitor |= VL53L0x_ERROR_UPPER_LIMIT_SET;
 	else
-		errorTrashMonitor &= VL53L0x_ERROR_UPPER_LIMIT_RESET;
+		ErrorTrashMonitor &= VL53L0x_ERROR_UPPER_LIMIT_RESET;
 
 	if (distance < VL53L0x_LOWER_LIMIT)
-		errorTrashMonitor |= VL53L0x_ERROR_LOWER_LIMIT_SET;
+		ErrorTrashMonitor |= VL53L0x_ERROR_LOWER_LIMIT_SET;
 	else
-		errorTrashMonitor &= VL53L0x_ERROR_LOWER_LIMIT_RESET;
+		ErrorTrashMonitor &= VL53L0x_ERROR_LOWER_LIMIT_RESET;
 
-	if (bmeData.temperature > BME280_TEMP_UPPER_LIMIT)
-		errorTrashMonitor |= BME280_ERROR_TEMP_UPPER_LIMIT_SET;
+	if (BmeData.temperature > BME280_TEMP_UPPER_LIMIT)
+		ErrorTrashMonitor |= BME280_ERROR_TEMP_UPPER_LIMIT_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_TEMP_UPPER_LIMIT_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_TEMP_UPPER_LIMIT_RESET;
 
-	if (bmeData.temperature < BME280_TEMP_LOWER_LIMIT)
-		errorTrashMonitor |= BME280_ERROR_TEMP_LOWER_LIMIT_SET;
+	if (BmeData.temperature < BME280_TEMP_LOWER_LIMIT)
+		ErrorTrashMonitor |= BME280_ERROR_TEMP_LOWER_LIMIT_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_TEMP_LOWER_LIMIT_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_TEMP_LOWER_LIMIT_RESET;
 
-	if (bmeData.humidity > BME280_HYDR_UPPER_LIMIT)
-		errorTrashMonitor |= BME280_ERROR_HYDR_UPPER_LIMIT_SET;
+	if (BmeData.humidity > BME280_HYDR_UPPER_LIMIT)
+		ErrorTrashMonitor |= BME280_ERROR_HYDR_UPPER_LIMIT_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_HYDR_UPPER_LIMIT_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_HYDR_UPPER_LIMIT_RESET;
 
-	if (bmeData.humidity < BME280_HYDR_LOWER_LIMIT)
-		errorTrashMonitor |= BME280_ERROR_HYDR_LOWER_LIMIT_SET;
+	if (BmeData.humidity < BME280_HYDR_LOWER_LIMIT)
+		ErrorTrashMonitor |= BME280_ERROR_HYDR_LOWER_LIMIT_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_HYDR_LOWER_LIMIT_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_HYDR_LOWER_LIMIT_RESET;
 
 	if (rslt == BME280_E_NULL_PTR)
-		errorTrashMonitor |= BME280_ERROR_NULL_PTR_SET;
+		ErrorTrashMonitor |= BME280_ERROR_NULL_PTR_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_NULL_PTR_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_NULL_PTR_RESET;
 
 	if (rslt == BME280_E_DEV_NOT_FOUND)
-		errorTrashMonitor |= BME280_ERROR_DEV_NOT_FOUND_SET;
+		ErrorTrashMonitor |= BME280_ERROR_DEV_NOT_FOUND_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_DEV_NOT_FOUND_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_DEV_NOT_FOUND_RESET;
 
 	if (rslt == BME280_E_INVALID_LEN)
-		errorTrashMonitor |= BME280_ERROR_INVALID_LEN_SET;
+		ErrorTrashMonitor |= BME280_ERROR_INVALID_LEN_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_INVALID_LEN_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_INVALID_LEN_RESET;
 
 	if (rslt == BME280_E_COMM_FAIL)
-		errorTrashMonitor |= BME280_ERROR_COMM_FAIL_SET;
+		ErrorTrashMonitor |= BME280_ERROR_COMM_FAIL_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_COMM_FAIL_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_COMM_FAIL_RESET;
 
 	if (rslt == BME280_E_SLEEP_MODE_FAIL)
-		errorTrashMonitor |= BME280_ERROR_SLEEP_MODE_FAIL_SET;
+		ErrorTrashMonitor |= BME280_ERROR_SLEEP_MODE_FAIL_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_SLEEP_MODE_FAIL_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_SLEEP_MODE_FAIL_RESET;
 
 	if (rslt == BME280_E_NVM_COPY_FAILED)
-		errorTrashMonitor |= BME280_ERROR_NVM_COPY_FAILED_SET;
+		ErrorTrashMonitor |= BME280_ERROR_NVM_COPY_FAILED_SET;
 	else
-		errorTrashMonitor &= BME280_ERROR_NVM_COPY_FAILED_RESET;
+		ErrorTrashMonitor &= BME280_ERROR_NVM_COPY_FAILED_RESET;
 }
 
 static void StartTxProcess(LmHandlerTxEvents_t txEvent)

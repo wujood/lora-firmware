@@ -70,23 +70,20 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
     }
 
     __HAL_RCC_ADC_CLK_ENABLE( );
+    __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
 
     adcConf.Channel = channel;
     adcConf.Rank = ADC_REGULAR_RANK_1;
-    adcConf.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
+    adcConf.SamplingTime = ADC_SAMPLETIME_6CYCLES_5;
 
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
-    // Enable ADC
-    if( ADC_Enable( &AdcHandle ) == HAL_OK )
-    {
-        // Start ADC Software Conversion
-        HAL_ADC_Start( &AdcHandle );
 
-        HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
+    // Start ADC Software Conversion
+    HAL_ADC_Start( &AdcHandle );
 
-        adcData = HAL_ADC_GetValue( &AdcHandle );
-    }
+    HAL_ADC_PollForConversion( &AdcHandle, 50 );
+    adcData = HAL_ADC_GetValue( &AdcHandle );
 
     ADC_ConversionStop( &AdcHandle, ADC_REGULAR_GROUP );
     HAL_ADC_Stop( &AdcHandle );

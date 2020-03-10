@@ -21,6 +21,19 @@
 #ifndef __LORAMAC_HANDLER_TYPES_H__
 #define __LORAMAC_HANDLER_TYPES_H__
 
+
+/*!
+ * When using ABP activation the MAC layer must know in advance to which server
+ * version it will be connected.
+ */
+#define ABP_ACTIVATION_LRWAN_VERSION_V10x                  0x01000300 // 1.0.3.0
+#define ABP_ACTIVATION_LRWAN_VERSION_V11x                  0x01010100 // 1.1.1.0
+
+#define ABP_ACTIVATION_LRWAN_VERSION                       ABP_ACTIVATION_LRWAN_VERSION_V11x
+
+
+
+
 #include "LoRaMac.h"
 
 /*!

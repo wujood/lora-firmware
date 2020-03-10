@@ -24,7 +24,7 @@
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"
-#include "spi-board.h"
+#include "dma-board.h"
 
 #define SPI_SPEED 10000000
 
@@ -43,7 +43,6 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
         __HAL_RCC_SPI1_CLK_ENABLE( );
 
         SpiHandle[spiId].Instance = ( SPI_TypeDef* )SPI1_BASE;
-
         GpioInit( &obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
         GpioInit( &obj->Miso, miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
         GpioInit( &obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
@@ -56,7 +55,6 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
         __HAL_RCC_SPI2_CLK_ENABLE( );
 
         SpiHandle[spiId].Instance = ( SPI_TypeDef* )SPI2_BASE;
-
         GpioInit( &obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI2 );
         GpioInit( &obj->Miso, miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI2 );
         GpioInit( &obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI2 );
@@ -77,6 +75,8 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
     SpiFrequency( obj, SPI_SPEED );
 
     HAL_SPI_Init( &SpiHandle[spiId] );
+
+    DmaInit(&SpiHandle[spiId], spiId);
 
     CRITICAL_SECTION_END( );
 }
@@ -155,10 +155,11 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
     __HAL_SPI_ENABLE( &SpiHandle[obj->SpiId] );
 
     CRITICAL_SECTION_BEGIN( );
-
+//    HAL_SPI_TransmitReceive_DMA( &SpiHandle[obj->SpiId], ( uint8_t* )&outData, &rxData, 1 );
     HAL_SPI_TransmitReceive( &SpiHandle[obj->SpiId], ( uint8_t* )&outData, &rxData, 1, HAL_MAX_DELAY );
 
     CRITICAL_SECTION_END( );
 
     return( rxData );
 }
+

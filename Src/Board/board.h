@@ -105,6 +105,13 @@ void BoardGetUniqueId( uint8_t *id );
 void BoardLowPowerHandler( void );
 
 /*!
+ * \brief Read the VBAT from ADC1
+ *
+ * \retval value  VBAT
+ */
+uint16_t GetVBAT( void );
+
+/*!
  * \brief Get the board power source
  *
  * \retval value  power source [0: USB_POWER, 1: BATTERY_POWER]

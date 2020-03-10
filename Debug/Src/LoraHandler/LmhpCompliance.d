@@ -8,7 +8,8 @@ Src/LoraHandler/LmhpCompliance.o: ../Src/LoraHandler/LmhpCompliance.c \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTest.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h \
- ../Src/LoraHandler/LmhPackage.h ../Src/LoraHandler/LmHandlerTypes.h \
+ ../Src/LoraHandler/LmhPackage.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LmHandlerTypes.h \
  ../Src/LoraHandler/LmhpCompliance.h
 
 C:/Users/Matze/workspace/TrashLORA/Src/Board/utilities.h:
@@ -31,6 +32,6 @@ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h:
 
 ../Src/LoraHandler/LmhPackage.h:
 
-../Src/LoraHandler/LmHandlerTypes.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LmHandlerTypes.h:
 
 ../Src/LoraHandler/LmhpCompliance.h:

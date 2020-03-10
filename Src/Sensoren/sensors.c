@@ -13,24 +13,24 @@
 //#include "get_nucleo_serial_comm.h"
 //#include <windows.h>
 
-int8_t bme280_spi_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t Bme280SpiRead(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
 	int8_t rslt = 0; /* Return 0 for Success, non-zero for failure */
 
 	uint8_t i;
 
 	//NSS = 0;
-	GpioWrite(&bme280.Spi.Nss, 0);
+	GpioWrite(&Bme280.Spi.Nss, 0);
 
-	SpiInOut(&bme280.Spi, reg_addr | 0x80);
+	SpiInOut(&Bme280.Spi, reg_addr | 0x80);
 
 	for (i = 0; i < len; i++)
 	{
-		reg_data[i] = SpiInOut(&bme280.Spi, 0);
+		reg_data[i] = SpiInOut(&Bme280.Spi, 0);
 	}
 
 	//NSS = 1;
-	GpioWrite(&bme280.Spi.Nss, 1);
+	GpioWrite(&Bme280.Spi.Nss, 1);
 	/*
 	 * The parameter dev_id can be used as a variable to select which Chip Select pin has
 	 * to be set low to activate the relevant device on the SPI bus
@@ -53,23 +53,23 @@ int8_t bme280_spi_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint
 	return rslt;
 }
 
-int8_t bme280_spi_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t Bme280SpiWrite(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
 	int8_t rslt = 0; /* Return 0 for Success, non-zero for failure */
 
 	uint8_t i;
 
 	//NSS = 0;
-	GpioWrite(&bme280.Spi.Nss, 0);
+	GpioWrite(&Bme280.Spi.Nss, 0);
 
-	SpiInOut(&bme280.Spi, reg_addr & 0x7F);
+	SpiInOut(&Bme280.Spi, reg_addr & 0x7F);
 	for (i = 0; i < len; i++)
 	{
-		SpiInOut(&bme280.Spi, reg_data[i]);
+		SpiInOut(&Bme280.Spi, reg_data[i]);
 	}
 
 	//NSS = 1;
-	GpioWrite(&bme280.Spi.Nss, 1);
+	GpioWrite(&Bme280.Spi.Nss, 1);
 
 	/*
 	 * The parameter dev_id can be used as a variable to select which Chip Select pin has
@@ -93,7 +93,7 @@ int8_t bme280_spi_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uin
 	return rslt;
 }
 
-int8_t stream_bme280_data_forced_mode(struct bme280_dev *dev, struct bme280_data *comp_data)
+int8_t StreamBme280DataForcedMode(struct bme280_dev *dev, struct bme280_data *comp_data)
 {
 	int8_t rslt;
 	uint8_t settings_sel;
@@ -119,39 +119,39 @@ int8_t stream_bme280_data_forced_mode(struct bme280_dev *dev, struct bme280_data
 //            fprintf(stderr, "Failed to set sensor mode (code %+d).", rslt);
 	}
 	/* Wait for the measurement to complete and print data @25Hz */
-	dev->delay_ms(150);
+	dev->delay_ms(300);
 	rslt = bme280_get_sensor_data(BME280_TEMP | BME280_HUM, comp_data, dev);
 	if (rslt != BME280_OK)
 	{
 //            fprintf(stderr, "Failed to get sensor data (code %+d).", rslt);
 	}
 	// print_sensor_data(&comp_data);
-	dev->delay_ms(200);
+	dev->delay_ms(1);
 
 	return rslt;
 }
 
 // Abstandssensor VL53L0x
 
-int8_t vl53l0x_i2c_write(uint16_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t Vl53l0xI2cWrite(uint16_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-	I2cWriteBuffer(&vl53l0x.I2c, vl53l0x.deviceAddr, reg_addr, reg_data, len);
+	I2cWriteBuffer(&Vl53l0x.I2c, Vl53l0x.deviceAddr, reg_addr, reg_data, len);
 	return 0;
 }
-int8_t vl53l0x_i2c_read(uint16_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t Vl53l0xI2cRead(uint16_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-	I2cReadBuffer(&vl53l0x.I2c, vl53l0x.deviceAddr, reg_addr, reg_data, len);
+	I2cReadBuffer(&Vl53l0x.I2c, Vl53l0x.deviceAddr, reg_addr, reg_data, len);
 	return 0;
 }
 
-int stream_vl53l0x_data_forced_mode(void)
+int StreamVl53l0xDataForcedMode(void)
 {
 	int i;
 	int iDistance;
 
-	for (i = 0; i < 5; i++) // read values 20 times a second for 1 minute
+	for (i = 0; i < 1; i++) // read values 20 times a second for 1 minute
 	{
-		iDistance = tofReadDistance(&vl53l0x);
+		iDistance = tofReadDistance(&Vl53l0x);
 		DelayMs(50); // 50ms
 	}
 	return iDistance;

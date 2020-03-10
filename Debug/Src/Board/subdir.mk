@@ -9,6 +9,7 @@ C_SRCS += \
 ../Src/Board/board.c \
 ../Src/Board/delay-board.c \
 ../Src/Board/delay.c \
+../Src/Board/dma-board.c \
 ../Src/Board/eeprom-board.c \
 ../Src/Board/eeprom.c \
 ../Src/Board/eeprom_emul.c \
@@ -37,6 +38,7 @@ OBJS += \
 ./Src/Board/board.o \
 ./Src/Board/delay-board.o \
 ./Src/Board/delay.o \
+./Src/Board/dma-board.o \
 ./Src/Board/eeprom-board.o \
 ./Src/Board/eeprom.o \
 ./Src/Board/eeprom_emul.o \
@@ -65,6 +67,7 @@ C_DEPS += \
 ./Src/Board/board.d \
 ./Src/Board/delay-board.d \
 ./Src/Board/delay.d \
+./Src/Board/dma-board.d \
 ./Src/Board/eeprom-board.d \
 ./Src/Board/eeprom.d \
 ./Src/Board/eeprom_emul.d \

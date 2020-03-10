@@ -1,4 +1,4 @@
-Src/Board/spi-board.o: ../Src/Board/spi-board.c \
+Src/Board/dma-board.o: ../Src/Board/dma-board.c \
  C:/Users/Matze/workspace/TrashLORA/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h \
  C:/Users/Matze/workspace/TrashLORA/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l476xx.h \
  C:/Users/Matze/workspace/TrashLORA/Drivers/CMSIS/Include/core_cm4.h \
@@ -73,9 +73,10 @@ Src/Board/spi-board.o: ../Src/Board/spi-board.c \
  C:/Users/Matze/workspace/TrashLORA/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_usb.h \
  C:/Users/Matze/workspace/TrashLORA/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pcd_ex.h \
  C:/Users/Matze/workspace/TrashLORA/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_hcd.h \
- ../Src/Board/utilities.h ../Src/Board/board.h ../Src/Board/gpio.h \
- ../Src/Board/pinName-board.h ../Src/Board/pinName-ioe.h \
- ../Src/Board/dma-board.h ../Src/Board/spi-board.h ../Src/Board/spi.h
+ ../Src/Board/dma-board.h ../Src/Board/spi-board.h ../Src/Board/spi.h \
+ ../Src/Board/gpio.h ../Src/Board/pinName-board.h \
+ ../Src/Board/pinName-ioe.h ../Src/Board/board-config.h \
+ ../Src/Board/Spi.h
 
 C:/Users/Matze/workspace/TrashLORA/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h:
 
@@ -225,9 +226,11 @@ C:/Users/Matze/workspace/TrashLORA/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ha
 
 C:/Users/Matze/workspace/TrashLORA/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_hcd.h:
 
-../Src/Board/utilities.h:
+../Src/Board/dma-board.h:
 
-../Src/Board/board.h:
+../Src/Board/spi-board.h:
+
+../Src/Board/spi.h:
 
 ../Src/Board/gpio.h:
 
@@ -235,8 +238,6 @@ C:/Users/Matze/workspace/TrashLORA/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ha
 
 ../Src/Board/pinName-ioe.h:
 
-../Src/Board/dma-board.h:
+../Src/Board/board-config.h:
 
-../Src/Board/spi-board.h:
-
-../Src/Board/spi.h:
+../Src/Board/Spi.h:

@@ -2638,7 +2638,7 @@ void DeleteBackup(void);
  */
 uint8_t GetNetworkActivation(void);
 
-
+uint16_t GetCnt( void );
 /*!
  * \brief   Restore the LoRaMacMlme Parameter
  *

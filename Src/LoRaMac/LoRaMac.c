@@ -4822,6 +4822,11 @@ uint8_t GetNetworkActivation(void)
 		return 0;
 }
 
+
+uint16_t GetCnt( void ){
+	return  RtcBackupRead(FCntUp);
+}
+
 void RestoreLoRaMacMlmeRequest(MlmeReq_t* mlmeRequest)
 {
 	MlmeConfirmQueue_t queueElement;

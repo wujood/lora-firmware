@@ -60,9 +60,9 @@
 #define BME280_HYDR_UPPER_LIMIT			            102400
 #define BME280_HYDR_LOWER_LIMIT						0
 
-struct bme280_dev bme280;
+struct bme280_dev Bme280;
 
-struct vl53l0x_dev vl53l0x;
+struct vl53l0x_dev Vl53l0x;
 
 /*!
  * \brief Reads BME280 registers at address
@@ -74,7 +74,7 @@ struct vl53l0x_dev vl53l0x;
  *
  * \retval rslt Return value 0
  */
-int8_t bme280_spi_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
+int8_t Bme280SpiRead(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
 
 /*!
  * \brief Writes BME280 registers at address
@@ -86,7 +86,7 @@ int8_t bme280_spi_read(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint
  *
  * \retval rslt Return value 0
  */
-int8_t bme280_spi_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
+int8_t Bme280SpiWrite(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len);
 
 /*!
  * \brief Force to get Data from sensor
@@ -96,7 +96,7 @@ int8_t bme280_spi_write(uint8_t dev_id, uint8_t reg_addr, uint8_t *reg_data, uin
  *
  * \retval rslt Return error value
  */
-int8_t stream_bme280_data_forced_mode(struct bme280_dev *dev, struct bme280_data *comp_data);
+int8_t StreamBme280DataForcedMode(struct bme280_dev *dev, struct bme280_data *comp_data);
 
 /*!
  * \brief Reads VL53L0x registers at address
@@ -107,7 +107,7 @@ int8_t stream_bme280_data_forced_mode(struct bme280_dev *dev, struct bme280_data
  *
  * \retval rslt Return value 0
  */
-int8_t vl53l0x_i2c_read(uint16_t reg_addr, uint8_t *reg_data, uint16_t len);
+int8_t Vl53l0xI2cRead(uint16_t reg_addr, uint8_t *reg_data, uint16_t len);
 
 /*!
  * \brief Writes VL53L0x registers at address
@@ -118,12 +118,12 @@ int8_t vl53l0x_i2c_read(uint16_t reg_addr, uint8_t *reg_data, uint16_t len);
  *
  * \retval rslt Return value 0
  */
-int8_t vl53l0x_i2c_write(uint16_t reg_addr, uint8_t *reg_data, uint16_t len);
+int8_t Vl53l0xI2cWrite(uint16_t reg_addr, uint8_t *reg_data, uint16_t len);
 
 /*!
  * \brief Force to get Data from VL53L0x
  *
  * \retval Measured distance
  */
-int stream_vl53l0x_data_forced_mode(void);
+int StreamVl53l0xDataForcedMode(void);
 #endif /* LORABIB_SENSORS_H_ */

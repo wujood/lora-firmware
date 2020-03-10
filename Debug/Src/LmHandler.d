@@ -9,10 +9,9 @@ Src/LmHandler.o: ../Src/LmHandler.c \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMacTypes.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/Region/Region.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h \
- ../Src/LmHandler.h \
- C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ ../Src/LmHandler.h ../Src/LmHandlerTypes.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpCompliance.h \
- C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h \
+ C:/Users/Matze/workspace/TrashLORA/Src/LmHandlerTypes.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h \
  C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpClockSync.h \
@@ -43,11 +42,11 @@ C:/Users/Matze/workspace/TrashLORA/Src/LoRaMac/LoRaMac.h:
 
 ../Src/LmHandler.h:
 
-C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
+../Src/LmHandlerTypes.h:
 
 C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhpCompliance.h:
 
-C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmHandlerTypes.h:
+C:/Users/Matze/workspace/TrashLORA/Src/LmHandlerTypes.h:
 
 C:/Users/Matze/workspace/TrashLORA/Src/LoraHandler/LmhPackage.h:
 

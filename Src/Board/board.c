@@ -61,6 +61,7 @@ Gpio_t EnableLR;
  */
 Uart_t Uart2;
 
+Adc_t Adc1;
 /*!
  * Initializes the unused GPIO to a know status
  */
@@ -137,33 +138,27 @@ void BoardCriticalSectionEnd( uint32_t *mask )
 
 void BoardInitPeriph( void )
 {
-    // Temperatur & Luftfeuchtigkeitssensor
-	bme280.dev_id = 0;
-	bme280.intf = BME280_SPI_INTF;
-	bme280.read = bme280_spi_read;
-	bme280.write = bme280_spi_write;
-	bme280.delay_ms = DelayMs;
+    // Initialize the temperature and humidity sensor
+	Bme280.dev_id = 0;
+	Bme280.intf = BME280_SPI_INTF;
+	Bme280.read = Bme280SpiRead;
+	Bme280.write = Bme280SpiWrite;
+	Bme280.delay_ms = DelayMs;
 
-    SpiInit( &bme280.Spi, SPI_1, BME280_MOSI, BME280_MISO, BME280_SCLK, NC );
-    GpioInit( &bme280.Spi.Nss, BME280_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+    SpiInit( &Bme280.Spi, SPI_1, BME280_MOSI, BME280_MISO, BME280_SCLK, NC );
+    GpioInit( &Bme280.Spi.Nss, BME280_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
 
+    bme280_init(&Bme280);
 
-    bme280_init(&bme280);
+	// Initialize the distance sensor
+	Vl53l0x.deviceAddr = 0x52;
+	Vl53l0x.read = Vl53l0xI2cRead;
+	Vl53l0x.write = Vl53l0xI2cWrite;
+	Vl53l0x.delay_ms = DelayMs;
 
-	// Abstandssensor
-	vl53l0x.deviceAddr = 0x52;
-	vl53l0x.read = vl53l0x_i2c_read;
-	vl53l0x.write = vl53l0x_i2c_write;
-	vl53l0x.delay_ms = DelayMs;
+	I2cInit(&Vl53l0x.I2c, I2C_1, VL53L0x_SCL, VL53L0x_SDA );
 
-
-	I2cInit(&vl53l0x.I2c, I2C_1, VL53L0x_SCL, VL53L0x_SDA );
-
-
-	// For Raspberry Pi's, the I2C channel is usually 1
-	// For other boards (e.g. OrangePi) it's 0
-
-	initSensor(&vl53l0x, 1); // set long range mode (up to 2m)
+	initSensor(&Vl53l0x, 1);
 }
 
 void BoardInitMcu( void )
@@ -174,11 +169,14 @@ void BoardInitMcu( void )
 
         InitFlashMemoryOperations( );
 
-        GpioInit( &EnableLR, PC_13, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioWrite( &EnableLR,1);
-
         SystemClockConfig( );
 
+        GpioInit( &EnableLR, PC_8, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
+        GpioWrite( &EnableLR,1);
+
+
+
+        // Initialize the independent watchdog
         IWDG_Init();
 
         if(LP_RUN_SHUTDOWN_MODE)
@@ -194,6 +192,8 @@ void BoardInitMcu( void )
         UartConfig( &Uart2, RX_TX, 921600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
         RtcInit( );
+
+        AdcInit(&Adc1, NC);
 
         BoardUnusedIoInit( );
         if( GetBoardPowerSource( ) == BATTERY_POWER )
@@ -345,6 +345,7 @@ void SystemClockConfig( void )
 
     // SysTick_IRQn interrupt configuration
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
+
 }
 
 void CalibrateSystemWakeupTime( void )
@@ -508,7 +509,7 @@ void LpmEnterOffMode(void)
 	GpioWrite(&EnableLR, 0);
 	BoardDeInitMcu();
 	CRITICAL_SECTION_END( );
-	// Enter Shutdown Mode
+//	// Enter Shutdown Mode
 
 	HAL_PWREx_EnterSHUTDOWNMode();
 }
@@ -520,7 +521,6 @@ void LpmExitOffMode(void)
 
 	// Initilizes the peripherals
 	BoardInitMcu();
-	GpioWrite(&EnableLR, 1);
 	CRITICAL_SECTION_END( );
 
 }
@@ -594,6 +594,13 @@ void BoardLowPowerHandler( void )
 
     __enable_irq( );
 }
+
+
+uint16_t GetVBAT( void ){
+	return (AdcReadChannel(&Adc1, ADC_CHANNEL_VBAT));
+}
+
+
 
 #if !defined ( __CC_ARM )
 

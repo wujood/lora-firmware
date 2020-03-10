@@ -102,6 +102,7 @@
 "Src/Board/board.o"
 "Src/Board/delay-board.o"
 "Src/Board/delay.o"
+"Src/Board/dma-board.o"
 "Src/Board/eeprom-board.o"
 "Src/Board/eeprom.o"
 "Src/Board/eeprom_emul.o"
